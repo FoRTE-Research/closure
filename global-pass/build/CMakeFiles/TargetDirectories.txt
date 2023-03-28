@@ -1,8 +1,0 @@
-/home/ianpaterson/Research/Grad_Research-main-2/llvm-pass-shadowGlobals/build/CMakeFiles/rebuild_cache.dir
-/home/ianpaterson/Research/Grad_Research-main-2/llvm-pass-shadowGlobals/build/CMakeFiles/acc_gen.dir
-/home/ianpaterson/Research/Grad_Research-main-2/llvm-pass-shadowGlobals/build/CMakeFiles/edit_cache.dir
-/home/ianpaterson/Research/Grad_Research-main-2/llvm-pass-shadowGlobals/build/CMakeFiles/omp_gen.dir
-/home/ianpaterson/Research/Grad_Research-main-2/llvm-pass-shadowGlobals/build/CMakeFiles/intrinsics_gen.dir
-/home/ianpaterson/Research/Grad_Research-main-2/llvm-pass-shadowGlobals/build/skeleton/CMakeFiles/rebuild_cache.dir
-/home/ianpaterson/Research/Grad_Research-main-2/llvm-pass-shadowGlobals/build/skeleton/CMakeFiles/edit_cache.dir
-/home/ianpaterson/Research/Grad_Research-main-2/llvm-pass-shadowGlobals/build/skeleton/CMakeFiles/SkeletonPass.dir

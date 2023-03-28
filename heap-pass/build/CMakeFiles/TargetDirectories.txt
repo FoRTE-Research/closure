@@ -1,8 +1,0 @@
-/Users/ianpaterson/Downloads/Research/Grad_Research-main-2/heap-pass/build/CMakeFiles/intrinsics_gen.dir
-/Users/ianpaterson/Downloads/Research/Grad_Research-main-2/heap-pass/build/CMakeFiles/omp_gen.dir
-/Users/ianpaterson/Downloads/Research/Grad_Research-main-2/heap-pass/build/CMakeFiles/acc_gen.dir
-/Users/ianpaterson/Downloads/Research/Grad_Research-main-2/heap-pass/build/CMakeFiles/edit_cache.dir
-/Users/ianpaterson/Downloads/Research/Grad_Research-main-2/heap-pass/build/CMakeFiles/rebuild_cache.dir
-/Users/ianpaterson/Downloads/Research/Grad_Research-main-2/heap-pass/build/skeleton/CMakeFiles/SkeletonPass.dir
-/Users/ianpaterson/Downloads/Research/Grad_Research-main-2/heap-pass/build/skeleton/CMakeFiles/edit_cache.dir
-/Users/ianpaterson/Downloads/Research/Grad_Research-main-2/heap-pass/build/skeleton/CMakeFiles/rebuild_cache.dir
