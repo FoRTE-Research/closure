@@ -1,0 +1,18 @@
+## TOOLED LOOP RESULTS
+10000 times: 179.69s
+100000 times: 1789.68s user 3.60s system 99% cpu 29:54.28 total
+
+
+## SHELL SCRIPT LOOP RESULTS
+10000 times: 211.71s user 34.81s system 94% cpu 4:21.15 total
+100000 times: 2132.08s user 361.95s system 94% cpu 44:05.08 total
+
+
+## TOOLED SCRIPT PRINT ON HASHMAP ONLY NO ALLOCATION
+100000 times: 0.50s user 0.48s system 59% cpu 1.623 total
+1000000 times: 5.34s user 5.12s system 65% cpu 16.024 total
+
+
+## SHELL SCRIPT LOOP ON HASHMAP ONLY NO ALLOCATION
+100000 times: 87.21s user 93.38s system 70% cpu 4:17.49 total (~161 times longer)
+1000000 times: 873.32s user 958.30s system 70% cpu 43:09.22 total (~161 times longer)

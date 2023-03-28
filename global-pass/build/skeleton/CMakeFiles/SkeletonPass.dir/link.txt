@@ -1,0 +1,1 @@
+/usr/bin/clang++ -fPIC   -shared  -o libSkeletonPass.so CMakeFiles/SkeletonPass.dir/shadowGlobals.cpp.o   -L/usr/lib/llvm-11/lib 

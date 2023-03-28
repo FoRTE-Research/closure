@@ -1,0 +1,13 @@
+first compile and emit llvmIR
+1. clang -emit-llvm <input>.c -o <output>.bc
+
+- change it to a .ll file with llvm-dis
+
+Run opt to edit code
+2. opt -load skeleton/libSkeletonPass.so -name-of-pass <input>.ll -o <output>.bc
+
+compile the library file to llvm-ir as well and then link with new file
+3. llvm-link <library>.ll <source>.ll -o <joined>.bc
+
+compile the code to machine code
+4. Clang joined.bc -o joined.out
