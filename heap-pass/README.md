@@ -1,17 +1,16 @@
-# llvm-pass-skeleton
+# heap-reset pass for Closure
 
-A completely useless LLVM pass.
-It's for LLVM 3.8.
+This pass replaces all the heap related functions to
+custom implementations in the harness stub. 
 
 Build:
 
-    $ cd llvm-pass-skeleton
     $ mkdir build
     $ cd build
     $ cmake ..
     $ make
     $ cd ..
 
-Run:
+Run (with opt):
 
-    $ clang -Xclang -load -Xclang build/skeleton/libSkeletonPass.* something.c
+    $ opt -load build/libheapReset.so -heapreset <input>.c
