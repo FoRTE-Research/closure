@@ -58,5 +58,15 @@ namespace
 
 char RenameMainPass::ID = 0;
 
-// Register the pass so `opt -mempass` runs it.
+void addRenameMainPass(const PassManagerBuilder & /* unused */,
+                            legacy::PassManagerBase &PM) {
+  PM.add(new RenameMainPass());
+}
+
+
+// Register the pass so `opt -rename-main` runs it.
 static RegisterPass<RenameMainPass> X("rename-main", "Pass to rename main");
+
+// Tell frontends to run the pass automatically.
+static struct RegisterStandardPasses Y(PassManagerBuilder::EP_VectorizerStart,
+                                      addRenameMainPass );

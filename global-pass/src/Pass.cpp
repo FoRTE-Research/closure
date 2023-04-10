@@ -19,122 +19,10 @@ using namespace llvm;
 
 namespace
 {
-  struct HeapResetPass : public ModulePass
+  struct CloneGlobalsPass : public ModulePass
   {
     static char ID;
-    HeapResetPass() : ModulePass(ID) {}
-
-    // Replaces free and malloc with my own implementation of free and malloc from the
-    // main stub
-    void heapManage(Module &M)
-    {
-      M.getFunction("free")->replaceAllUsesWith(M.getFunction("myFree"));
-      M.getFunction("malloc")->replaceAllUsesWith(M.getFunction("myMalloc"));
-
-      Function *F = M.getFunction("myMalloc");
-      for (auto &B : *F)
-      {
-        for (auto &I : B)
-        {
-          if (CallInst *call = dyn_cast<CallInst>(&I))
-          {
-            if (call->getCalledFunction() != 0x0)
-            {
-              if (call->getCalledFunction()->getName().contains("myMalloc") == 1)
-              {
-                call->setCalledFunction(M.getFunction("malloc"));
-              }
-              if (call->getCalledFunction()->getName().contains("myFree") == 1)
-              {
-                call->setCalledFunction(M.getFunction("free"));
-              }
-            }
-          }
-        }
-      }
-
-      Function *F5 = M.getFunction("add_ptr");
-      for (auto &B : *F5)
-      {
-        for (auto &I : B)
-        {
-
-          if (CallInst *call = dyn_cast<CallInst>(&I))
-          {
-            if (call->getCalledFunction() != 0x0)
-            {
-              if (call->getCalledFunction()->getName().contains("myMalloc") == true)
-              {
-                call->setCalledFunction(M.getFunction("malloc"));
-              }
-              if (call->getCalledFunction()->getName().contains("myFree") == true)
-              {
-                call->setCalledFunction(M.getFunction("free"));
-              }
-            }
-          }
-        }
-      }
-
-      Function *F4 = M.getFunction("free_ptrs");
-
-      for (auto &B : *F4)
-      {
-        for (auto &I : B)
-        {
-          if (CallInst *call = dyn_cast<CallInst>(&I))
-          {
-            if (call->getCalledFunction() != 0x0)
-            {
-              if (call->getCalledFunction()->getName().contains("myFree") == true)
-              {
-                call->setCalledFunction(M.getFunction("free"));
-              }
-            }
-          }
-        }
-      }
-
-      Function *F3 = M.getFunction("delete_ptr");
-      for (auto &B : *F3)
-      {
-        for (auto &I : B)
-        {
-          if (CallInst *call = dyn_cast<CallInst>(&I))
-          {
-            if (call->getCalledFunction() != 0x0)
-            {
-              if (call->getCalledFunction()->getName().contains("myMalloc") == true)
-              {
-                call->setCalledFunction(M.getFunction("malloc"));
-              }
-              if (call->getCalledFunction()->getName().contains("myFree") == true)
-              {
-                call->setCalledFunction(M.getFunction("free"));
-              }
-            }
-          }
-        }
-      }
-
-      Function *F2 = M.getFunction("myFree");
-      for (auto &B : *F2)
-      {
-        for (auto &I : B)
-        {
-          if (CallInst *call = dyn_cast<CallInst>(&I))
-          {
-            if (call->getCalledFunction() != 0x0)
-            {
-              if (call->getCalledFunction()->getName().contains("myFree") == 1)
-              {
-                call->setCalledFunction(M.getFunction("free"));
-              }
-            }
-          }
-        }
-      }
-    }
+    CloneGlobalsPass() : ModulePass(ID) {}
 
     // Adds the longjmp to any point where an exit occurs to avoid the function from crashing
     void jumpExit(Module &M, Value &V)
@@ -207,11 +95,58 @@ namespace
                   // errs() << call2->getCalledFunction()->getName() << "\n";
                 }
               }
-
-              //}start_
-              // errs() << "Exit found\n";
             }
             insertion_pt++;
+          }
+        }
+      }
+    }
+
+    /**
+     * This method inserts instructions to restore the global variable after every execution (using Load and Store)
+     * It uses the copy of every global variable made in the cloneGlobals method.
+     * We insert the restoration instructions in the entry block of `start_main` function (renamed `main`)
+     */
+    void restoreGlobalVariables(Module &M, GlobalVariable &original, GlobalVariable &clone)
+    {
+      Function *main = M.getFunction("start_main");
+      BasicBlock &entryBlock = main->getEntryBlock();
+
+      auto insertion_pt = entryBlock.getFirstInsertionPt();
+
+      IRBuilder<> IR(&entryBlock, insertion_pt);
+      Value *v = dyn_cast<Value>(&clone);
+      Value *v2 = dyn_cast<Value>(&original);
+      LoadInst *Load = IR.CreateLoad(v);
+      StoreInst *Store = IR.CreateStore(Load, v2);
+    }
+
+    /**
+     * Method for adding a copy of each global variable, and calls
+     * restoreGlobalVariables which adds a load and store inst to initialize the
+     * variables from their shadow backups
+     */
+    void cloneGlobals(Module &M)
+    {
+      outs() << M.getName() << "\n\n";
+      auto &list = M.getGlobalList();
+      for (auto &Global : list)
+      {
+        if (Global.getName().contains("_copy") == false)
+        {
+          if (Global.getName().contains('.') == false)
+          {
+            GlobalVariable *new_var = new GlobalVariable(
+                M,
+                (Global.getType()->isPointerTy() ? Global.getType()->getPointerElementType() : Global.getType()),
+                Global.isConstant(),
+                Global.getLinkage(),
+                Global.getInitializer(),
+                Global.getName() + "_copy");
+            new_var->setAlignment(MaybeAlign(Global.getAlignment()));
+            errs() << new_var->getName() << '\n';
+            errs() << Global.getName() << '\n';
+            restoreGlobalVariables(M, Global, *new_var);
           }
         }
       }
@@ -222,13 +157,14 @@ namespace
      */
     virtual bool runOnModule(Module &M)
     {
-      heapManage(M);
+      outs() << "Running global variable clone pass\n";
+      cloneGlobals(M);
       return true;
     }
   };
 }
 
-char HeapResetPass::ID = 0;
+char CloneGlobalsPass::ID = 0;
 
 // Register the pass so `opt -mempass` runs it.
-static RegisterPass<HeapResetPass> X("heapreset", "Reset heap chunks after every execution");
+static RegisterPass<CloneGlobalsPass> X("clone-globals", "generating shadow copy backups");
