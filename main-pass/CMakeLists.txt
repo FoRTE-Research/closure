@@ -12,7 +12,7 @@ link_directories(${LLVM_LIBRARY_DIRS})
 add_library(renameMain MODULE
 
     # List your source files here.
-    src/renameMain.cpp
+    src/Pass.cpp
 )
 
 

@@ -58,7 +58,7 @@ namespace
 
 char RenameMainPass::ID = 0;
 
-void addRenameMainPass(const PassManagerBuilder & /* unused */,
+void addModifyStubPass(const PassManagerBuilder & /* unused */,
                        legacy::PassManagerBase &PM)
 {
   PM.add(new RenameMainPass());
@@ -68,5 +68,7 @@ void addRenameMainPass(const PassManagerBuilder & /* unused */,
 static RegisterPass<RenameMainPass> X("rename-main", "Pass to rename main");
 
 // Tell frontends to run the pass automatically.
-static struct RegisterStandardPasses Y(PassManagerBuilder::EP_VectorizerStart,
-                                       addRenameMainPass);
+static RegisterStandardPasses Y(PassManagerBuilder::EP_EarlyAsPossible,
+                                addModifyStubPass);
+static RegisterStandardPasses
+    Z(PassManagerBuilder::EP_EnabledOnOptLevel0, addModifyStubPass);
