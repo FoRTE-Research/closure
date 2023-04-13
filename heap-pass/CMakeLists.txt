@@ -4,7 +4,7 @@ project(heapReset)
 # support C++14 features used by LLVM 10.0.0
 set(CMAKE_CXX_STANDARD 14)
 
-find_package(LLVM REQUIRED CONFIG)
+find_package(LLVM 10 REQUIRED CONFIG)
 add_definitions(${LLVM_DEFINITIONS})
 include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
@@ -15,13 +15,10 @@ add_library(heapReset MODULE
     src/Pass.cpp
 )
 
-# Use C++11 to compile our pass (i.e., supply -std=c++11).
-target_compile_features(heapReset PRIVATE cxx_range_for cxx_auto_type)
-
 # LLVM is (typically) built with no C++ RTTI. We need to match that;
 # otherwise, we'll get linker errors about missing RTTI data.
 set_target_properties(heapReset PROPERTIES
-    COMPILE_FLAGS "-fno-rtti"
+    COMPILE_FLAGS "-fno-rtti -fPIC"
 )
 
 # Get proper shared-library behavior (where symbols are not necessarily
