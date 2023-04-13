@@ -28,112 +28,14 @@ namespace
     // main stub
     void heapManage(Module &M)
     {
-      M.getFunction("free")->replaceAllUsesWith(M.getFunction("myFree"));
-      M.getFunction("malloc")->replaceAllUsesWith(M.getFunction("myMalloc"));
+      auto freeFunc = M.getFunction("free");
+      auto mallocFunc = M.getFunction("malloc");
 
-      Function *F = M.getFunction("myMalloc");
-      for (auto &B : *F)
-      {
-        for (auto &I : B)
-        {
-          if (CallInst *call = dyn_cast<CallInst>(&I))
-          {
-            if (call->getCalledFunction() != 0x0)
-            {
-              if (call->getCalledFunction()->getName().contains("myMalloc") == 1)
-              {
-                call->setCalledFunction(M.getFunction("malloc"));
-              }
-              if (call->getCalledFunction()->getName().contains("myFree") == 1)
-              {
-                call->setCalledFunction(M.getFunction("free"));
-              }
-            }
-          }
-        }
-      }
+      auto myMalloc = M.getOrInsertFunction("myMalloc", mallocFunc->getFunctionType());
+      auto myFree = M.getOrInsertFunction("myFree", freeFunc->getFunctionType());
 
-      Function *F5 = M.getFunction("add_ptr");
-      for (auto &B : *F5)
-      {
-        for (auto &I : B)
-        {
-
-          if (CallInst *call = dyn_cast<CallInst>(&I))
-          {
-            if (call->getCalledFunction() != 0x0)
-            {
-              if (call->getCalledFunction()->getName().contains("myMalloc") == true)
-              {
-                call->setCalledFunction(M.getFunction("malloc"));
-              }
-              if (call->getCalledFunction()->getName().contains("myFree") == true)
-              {
-                call->setCalledFunction(M.getFunction("free"));
-              }
-            }
-          }
-        }
-      }
-
-      Function *F4 = M.getFunction("free_ptrs");
-
-      for (auto &B : *F4)
-      {
-        for (auto &I : B)
-        {
-          if (CallInst *call = dyn_cast<CallInst>(&I))
-          {
-            if (call->getCalledFunction() != 0x0)
-            {
-              if (call->getCalledFunction()->getName().contains("myFree") == true)
-              {
-                call->setCalledFunction(M.getFunction("free"));
-              }
-            }
-          }
-        }
-      }
-
-      Function *F3 = M.getFunction("delete_ptr");
-      for (auto &B : *F3)
-      {
-        for (auto &I : B)
-        {
-          if (CallInst *call = dyn_cast<CallInst>(&I))
-          {
-            if (call->getCalledFunction() != 0x0)
-            {
-              if (call->getCalledFunction()->getName().contains("myMalloc") == true)
-              {
-                call->setCalledFunction(M.getFunction("malloc"));
-              }
-              if (call->getCalledFunction()->getName().contains("myFree") == true)
-              {
-                call->setCalledFunction(M.getFunction("free"));
-              }
-            }
-          }
-        }
-      }
-
-      Function *F2 = M.getFunction("myFree");
-      for (auto &B : *F2)
-      {
-        for (auto &I : B)
-        {
-          if (CallInst *call = dyn_cast<CallInst>(&I))
-          {
-            if (call->getCalledFunction() != 0x0)
-            {
-              if (call->getCalledFunction()->getName().contains("myFree") == 1)
-              {
-                call->setCalledFunction(M.getFunction("free"));
-              }
-            }
-          }
-        }
-      }
+      mallocFunc->replaceAllUsesWith(myMalloc.getCallee());
+      freeFunc->replaceAllUsesWith(myFree.getCallee());
     }
 
     // Adds the longjmp to any point where an exit occurs to avoid the function from crashing
@@ -222,6 +124,7 @@ namespace
      */
     virtual bool runOnModule(Module &M)
     {
+
       heapManage(M);
       return true;
     }
