@@ -1,9 +1,0 @@
-#!/bin/bash
-
-pass="${PWD}/build/librenameMain.so"
-compiler="${CLANG:-/usr/lib/llvm-10/bin/clang}"
-
-
-$compiler -S -emit-llvm "$1" -o tmp.ll
-opt -S -load $pass -rename-main tmp.ll -o "$2"  
-rm tmp.ll
