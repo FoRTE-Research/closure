@@ -38,87 +38,6 @@ namespace
       freeFunc->replaceAllUsesWith(myFree.getCallee());
     }
 
-    // Adds the longjmp to any point where an exit occurs to avoid the function from crashing
-    void jumpExit(Module &M, Value &V)
-    {
-      Function *main = M.getFunction("start_main");
-      BasicBlock *first_bb = &*main->begin()->getNextNode();
-
-      auto &context = M.getContext();
-      auto VoidTy = Type::getVoidTy(context);
-      auto Int32Ty = Type::getInt32Ty(context);
-      auto Int32PtrTy = Type::getInt32PtrTy(context);
-
-      std::vector<Type *> longjmpArgs;
-      longjmpArgs.push_back(V.getType());
-      longjmpArgs.push_back(Int32Ty);
-      FunctionCallee c =
-          M.getOrInsertFunction("longjmp", FunctionType::get(
-                                               VoidTy, longjmpArgs,
-                                               false));
-
-      llvm::Type *i32_type = llvm::IntegerType::getInt32Ty(context);
-      llvm::Constant *i32_val = llvm::ConstantInt::get(i32_type, 1 /*value*/, true);
-      std::vector<Value *> args;
-      args.push_back(&V);
-      args.push_back(i32_val);
-      IRBuilder<> *builder = new IRBuilder<>(context);
-      for (auto &F : M)
-      {
-        errs() << F.getName() << "\n";
-        for (auto &B : F)
-        {
-
-          BasicBlock::iterator insertion_pt = B.getFirstInsertionPt();
-
-          for (auto &I : B)
-          {
-            if (F.getName().contains("main") == 1 && F.getName().str().length() == 4)
-            {
-              errs() << "found start_main"
-                     << "\n";
-              // errs() << I << "\n";
-              if (ReturnInst *ret = dyn_cast<ReturnInst>(&I))
-              {
-                builder->SetInsertPoint(&*insertion_pt);
-                CallInst *call2 = builder->CreateCall(c, args, "");
-                errs() << "found the return"
-                       << "\n";
-                break;
-              }
-            }
-
-            // Alloca: Log i32* stack address
-            if (AllocaInst *alloca = dyn_cast<AllocaInst>(&I))
-            {
-            }
-            if (CallInst *call = dyn_cast<CallInst>(&I))
-            {
-              // errs() << call->getCalledFunction() << "\n";
-              if (call->getCalledFunction() == 0x0)
-              {
-                errs() << "wait what\n";
-              }
-              else
-              {
-                if ((call->getCalledFunction()->getName().contains("exit") == 1 && call->getCalledFunction()->getName().str().length() == 4) && F.getName().contains("main") != 1)
-                {
-                  errs() << "Test\n";
-                  builder->SetInsertPoint(&*insertion_pt);
-                  CallInst *call2 = builder->CreateCall(c, args, "");
-                  // errs() << call2->getCalledFunction()->getName() << "\n";
-                }
-              }
-
-              //}start_
-              // errs() << "Exit found\n";
-            }
-            insertion_pt++;
-          }
-        }
-      }
-    }
-
     /**
      * RUN FUNCTION TO PERFORM PASS ON THE INPUT FUNCTION
      */
@@ -133,5 +52,17 @@ namespace
 
 char HeapResetPass::ID = 0;
 
+void addModifyStubPass(const PassManagerBuilder & /* unused */,
+                       legacy::PassManagerBase &PM)
+{
+  PM.add(new HeapResetPass());
+}
+
 // Register the pass so `opt -mempass` runs it.
 static RegisterPass<HeapResetPass> X("heapreset", "Reset heap chunks after every execution");
+
+// Tell frontends to run the pass automatically.
+static RegisterStandardPasses Y(PassManagerBuilder::EP_EarlyAsPossible,
+                                addModifyStubPass);
+static RegisterStandardPasses
+    Z(PassManagerBuilder::EP_EnabledOnOptLevel0, addModifyStubPass);
