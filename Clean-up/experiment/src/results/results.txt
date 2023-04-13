@@ -1,8 +1,0 @@
-100000 Iterations: 
-    bash for loop: ./run.sh  88.64s user 98.10s system 71% cpu 4:19.47 total
-    My tooling: ./src/run.out  5.40s user 5.15s system 64% cpu 16.253 total
-
-
-100000 Iterations 
-    tooling: 17 s, ~.14 milliseconds for 100 iterations for test -> 14s for 100000 iterations = 3 s of overhead
-    bash loop: 224 s, ~.14 milliseconds for 100 iterations for test -> 14s for 100000 iterations = 210 s of overhead
