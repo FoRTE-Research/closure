@@ -15,6 +15,8 @@
 #include "llvm/IR/DebugInfoMetadata.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 #include "llvm/IR/GlobalVariable.h"
+#include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Transforms/IPO/PassManagerBuilder.h>
 using namespace llvm;
 
 namespace
@@ -24,101 +26,39 @@ namespace
     static char ID;
     CloneGlobalsPass() : ModulePass(ID) {}
 
-    // Adds the longjmp to any point where an exit occurs to avoid the function from crashing
-    void jumpExit(Module &M, Value &V)
-    {
-      Function *main = M.getFunction("start_main");
-      BasicBlock *first_bb = &*main->begin()->getNextNode();
-
-      auto &context = M.getContext();
-      auto VoidTy = Type::getVoidTy(context);
-      auto Int32Ty = Type::getInt32Ty(context);
-      auto Int32PtrTy = Type::getInt32PtrTy(context);
-
-      std::vector<Type *> longjmpArgs;
-      longjmpArgs.push_back(V.getType());
-      longjmpArgs.push_back(Int32Ty);
-      FunctionCallee c =
-          M.getOrInsertFunction("longjmp", FunctionType::get(
-                                               VoidTy, longjmpArgs,
-                                               false));
-
-      llvm::Type *i32_type = llvm::IntegerType::getInt32Ty(context);
-      llvm::Constant *i32_val = llvm::ConstantInt::get(i32_type, 1 /*value*/, true);
-      std::vector<Value *> args;
-      args.push_back(&V);
-      args.push_back(i32_val);
-      IRBuilder<> *builder = new IRBuilder<>(context);
-      for (auto &F : M)
-      {
-        errs() << F.getName() << "\n";
-        for (auto &B : F)
-        {
-
-          BasicBlock::iterator insertion_pt = B.getFirstInsertionPt();
-
-          for (auto &I : B)
-          {
-            if (F.getName().contains("main") == 1 && F.getName().str().length() == 4)
-            {
-              errs() << "found start_main"
-                     << "\n";
-              // errs() << I << "\n";
-              if (ReturnInst *ret = dyn_cast<ReturnInst>(&I))
-              {
-                builder->SetInsertPoint(&*insertion_pt);
-                CallInst *call2 = builder->CreateCall(c, args, "");
-                errs() << "found the return"
-                       << "\n";
-                break;
-              }
-            }
-
-            // Alloca: Log i32* stack address
-            if (AllocaInst *alloca = dyn_cast<AllocaInst>(&I))
-            {
-            }
-            if (CallInst *call = dyn_cast<CallInst>(&I))
-            {
-              // errs() << call->getCalledFunction() << "\n";
-              if (call->getCalledFunction() == 0x0)
-              {
-                errs() << "wait what\n";
-              }
-              else
-              {
-                if ((call->getCalledFunction()->getName().contains("exit") == 1 && call->getCalledFunction()->getName().str().length() == 4) && F.getName().contains("main") != 1)
-                {
-                  errs() << "Test\n";
-                  builder->SetInsertPoint(&*insertion_pt);
-                  CallInst *call2 = builder->CreateCall(c, args, "");
-                  // errs() << call2->getCalledFunction()->getName() << "\n";
-                }
-              }
-            }
-            insertion_pt++;
-          }
-        }
-      }
-    }
-
     /**
      * This method inserts instructions to restore the global variable after every execution (using Load and Store)
      * It uses the copy of every global variable made in the cloneGlobals method.
-     * We insert the restoration instructions in the entry block of `start_main` function (renamed `main`)
+     * Since globals can be present and used in any compilation unit, we insert a new function in each module
+     * to restore globals
      */
     void restoreGlobalVariables(Module &M, GlobalVariable &original, GlobalVariable &clone)
     {
-      Function *main = M.getFunction("start_main");
-      BasicBlock &entryBlock = main->getEntryBlock();
+      auto funcType = FunctionType::get(Type::getVoidTy(M.getContext()), false);
+      auto funcName = "restore-globals-" + M.getName().slice(2, M.getName().size() - 3);
+      auto restoreGlobal = dyn_cast<Function>(M.getOrInsertFunction(funcName.str(), funcType).getCallee());
+      BasicBlock *entryBlock = nullptr;
 
-      auto insertion_pt = entryBlock.getFirstInsertionPt();
+      if (restoreGlobal->getInstructionCount() == 0)
+      {
+        // Function has just been created, insert a basic block into it
+        entryBlock = BasicBlock::Create(M.getContext(), "entry", restoreGlobal);
+        ReturnInst::Create(M.getContext(), entryBlock);
+      }
+      else
+      {
+        entryBlock = &(restoreGlobal->getEntryBlock());
+      }
 
-      IRBuilder<> IR(&entryBlock, insertion_pt);
+      IRBuilder<> builder(M.getContext());
+      builder.SetInsertPoint(entryBlock->getTerminator());
+
+      // Let's create terminator for the function before inserting anything else
+
       Value *v = dyn_cast<Value>(&clone);
       Value *v2 = dyn_cast<Value>(&original);
-      LoadInst *Load = IR.CreateLoad(v);
-      StoreInst *Store = IR.CreateStore(Load, v2);
+      LoadInst *Load = builder.CreateLoad(v);
+      StoreInst *Store = builder.CreateStore(Load, v2);
     }
 
     /**
@@ -128,8 +68,9 @@ namespace
      */
     void cloneGlobals(Module &M)
     {
-      outs() << M.getName() << "\n\n";
+
       auto &list = M.getGlobalList();
+
       for (auto &Global : list)
       {
         if (Global.getName().contains("_copy") == false)
@@ -144,8 +85,7 @@ namespace
                 Global.getInitializer(),
                 Global.getName() + "_copy");
             new_var->setAlignment(MaybeAlign(Global.getAlignment()));
-            errs() << new_var->getName() << '\n';
-            errs() << Global.getName() << '\n';
+
             restoreGlobalVariables(M, Global, *new_var);
           }
         }
@@ -157,7 +97,12 @@ namespace
      */
     virtual bool runOnModule(Module &M)
     {
-      outs() << "Running global variable clone pass\n";
+      errs() << "Running global variable clone pass\n";
+      errs() << M.getName() << "\n\n";
+      if (M.getFunction("start_main") == nullptr)
+      {
+        return false;
+      }
       cloneGlobals(M);
       return true;
     }
@@ -166,5 +111,17 @@ namespace
 
 char CloneGlobalsPass::ID = 0;
 
+void addModifyStubPass(const PassManagerBuilder & /* unused */,
+                       legacy::PassManagerBase &PM)
+{
+  PM.add(new CloneGlobalsPass());
+}
+
 // Register the pass so `opt -mempass` runs it.
 static RegisterPass<CloneGlobalsPass> X("clone-globals", "generating shadow copy backups");
+
+// Tell frontends to run the pass automatically.
+static RegisterStandardPasses Y(PassManagerBuilder::EP_EarlyAsPossible,
+                                addModifyStubPass);
+static RegisterStandardPasses
+    Z(PassManagerBuilder::EP_EnabledOnOptLevel0, addModifyStubPass);
