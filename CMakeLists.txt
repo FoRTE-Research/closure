@@ -16,6 +16,7 @@ add_library( closure MODULE
     ./src/Pass.cpp
     ./src/RenameMainPass.cpp
     ./src/HeapPass.cpp
+    ./src/ExitPass.cpp
     ./src/GlobalPass.cpp
     ./src/StubPass.cpp
 

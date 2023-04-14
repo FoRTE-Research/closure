@@ -1,5 +1,6 @@
 #include "RenameMain.h"
 #include "HeapPass.h"
+#include "ExitPass.h"
 #include "GlobalPass.h"
 #include "StubPass.h"
 
@@ -8,6 +9,7 @@ void addClosurePass(const PassManagerBuilder & /* unused */,
 {
     PM.add(new RenameMainPass());
     PM.add(new HeapResetPass());
+    PM.add(new ExitHookPass());
     PM.add(new CloneGlobalsPass());
     PM.add(new ModifyStubPass());
 }
