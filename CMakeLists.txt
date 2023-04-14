@@ -10,7 +10,17 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
 
-add_subdirectory(global-pass)
-add_subdirectory(main-pass)
-add_subdirectory(heap-pass)
-add_subdirectory(stub-pass)
+include_directories(./include)
+
+add_library( closure MODULE
+    ./src/Pass.cpp
+    ./src/RenameMainPass.cpp
+    ./src/HeapPass.cpp
+    ./src/GlobalPass.cpp
+    ./src/StubPass.cpp
+
+)
+
+set_target_properties(closure PROPERTIES
+    COMPILE_FLAGS "-fno-rtti -fPIC -g"
+)
