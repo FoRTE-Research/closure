@@ -5,10 +5,14 @@
 using namespace llvm;
 
 /**
- * This method inserts instructions to restore the global variable after every execution (using Load and Store)
+ * @brief  * This method inserts instructions to restore the global variable after every execution (using Load and Store)
  * It uses the copy of every global variable made in the cloneGlobals method.
  * Since globals can be present and used in any compilation unit, we insert a new function in each module
  * to restore globals
+ *
+ * @param M
+ * @param original
+ * @param clone
  */
 void CloneGlobalsPass::restoreGlobalVariables(Module &M, GlobalVariable &original, GlobalVariable &clone)
 {
@@ -40,9 +44,11 @@ void CloneGlobalsPass::restoreGlobalVariables(Module &M, GlobalVariable &origina
 }
 
 /**
- * Method for adding a copy of each global variable, and calls
+ * @brief Method for adding a copy of each global variable, and calls
  * restoreGlobalVariables which adds a load and store inst to initialize the
  * variables from their shadow backups
+ *
+ * @param M
  */
 void CloneGlobalsPass::cloneGlobals(Module &M)
 {
@@ -71,17 +77,21 @@ void CloneGlobalsPass::cloneGlobals(Module &M)
 }
 
 /**
- * RUN FUNCTION TO PERFORM PASS ON THE INPUT FUNCTION
+ * @brief runOnModule method for Module Pass
+ *
+ * @param M
+ * @return true
+ * @return false
  */
 bool CloneGlobalsPass::runOnModule(Module &M)
 {
   errs() << "Running global variable clone pass\n";
   errs() << M.getName() << "\n\n";
-  if (M.getName().contains("stubMain") == true)
+  if (isClosureStubModule(M.getName()))
   {
-    errs() << "The stub module found, returning" << M.getName() << "\n";
     return false;
   }
+
   cloneGlobals(M);
   return true;
 }

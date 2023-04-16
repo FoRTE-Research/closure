@@ -12,14 +12,14 @@ link_directories(${LLVM_LIBRARY_DIRS})
 
 include_directories(./include)
 
-add_library( closure MODULE
+add_library(closure MODULE
+    ./src/Common.cpp
     ./src/Pass.cpp
     ./src/RenameMainPass.cpp
     ./src/HeapPass.cpp
     ./src/ExitPass.cpp
     ./src/GlobalPass.cpp
     ./src/StubPass.cpp
-
 )
 
 set_target_properties(closure PROPERTIES

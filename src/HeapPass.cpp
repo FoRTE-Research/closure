@@ -4,8 +4,12 @@
 
 #include "HeapPass.h"
 
-// Replaces free and malloc with my own implementation of free and malloc from the
-// main stub
+/**
+ * @brief Replaces free and malloc with my own implementation of free and malloc from the
+ * main stub
+ *
+ * @param M
+ */
 void HeapResetPass::heapManage(Module &M)
 {
   auto freeFunc = M.getFunction("free");
@@ -27,16 +31,19 @@ void HeapResetPass::heapManage(Module &M)
 }
 
 /**
- * RUN FUNCTION TO PERFORM PASS ON THE INPUT FUNCTION
+ * @brief runOnModule method for Module Pass
+ *
+ * @param M
+ * @return true
+ * @return false
  */
 bool HeapResetPass::runOnModule(Module &M)
 {
 
   errs() << "Heap Pass opt for " << M.getName() << "\n";
 
-  if (M.getName().contains("stubMain") == true)
+  if (isClosureStubModule(M.getName()))
   {
-    errs() << "Not running heap pass for " << M.getName() << "\n";
     return false;
   }
 

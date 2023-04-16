@@ -7,6 +7,13 @@
 
 using namespace llvm;
 
+/**
+ * @brief runOnModule method for Module Pass
+ *
+ * @param M
+ * @return true
+ * @return false
+ */
 bool ModifyStubPass::runOnModule(Module &M)
 {
 	// We have to insert calls to restore-global functions just before
@@ -14,18 +21,14 @@ bool ModifyStubPass::runOnModule(Module &M)
 
 	errs() << "Running stub modify pass for: " << M.getName() << "\n";
 
-	bool hasMain = false;
-	Function *mainFunc = nullptr;
-	for (auto &F : M)
+	if (isClosureStubModule(M.getName()) == false)
 	{
-		if (F.getName() == "main")
-		{
-			mainFunc = &F;
-			hasMain = true;
-		}
+		return false;
 	}
 
-	if (hasMain == false)
+	Function *mainFunc = M.getFunction("main");
+
+	if (mainFunc == nullptr)
 	{
 		errs() << "No main function found, returning" << M.getName() << "\n";
 		return false;

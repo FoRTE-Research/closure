@@ -4,16 +4,20 @@
 #include "RenameMain.h"
 
 /**
- * RUN FUNCTION TO PERFORM PASS ON THE INPUT FUNCTION
+ * @brief runOnModule method for Module Pass
+ *
+ * @param M
+ * @return true
+ * @return false
  */
 bool RenameMainPass::runOnModule(Module &M)
 {
 
-  if (M.getName().contains("stubMain") == true)
+  if (isClosureStubModule(M.getName()))
   {
-    errs() << "Found the stub, skipping it " << M.getName() << "\n";
     return false;
   }
+
   for (auto &F : M)
   {
     auto funcName = F.getName();

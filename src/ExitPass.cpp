@@ -4,8 +4,11 @@
 
 #include "ExitPass.h"
 
-// Replaces free and malloc with my own implementation of free and malloc from the
-// main stub
+/**
+ * @brief This function is called by runOnModule method of Pass to replace exit with exitHook
+ *
+ * @param M - Module being compiled
+ */
 void ExitHookPass::hookExit(Module &M)
 {
     auto exitFunc = M.getFunction("exit");
@@ -19,16 +22,19 @@ void ExitHookPass::hookExit(Module &M)
 }
 
 /**
- * RUN FUNCTION TO PERFORM PASS ON THE INPUT FUNCTION
+ * @brief runOnModule method of Module Pass
+ *
+ * @param M
+ * @return true
+ * @return false
  */
 bool ExitHookPass::runOnModule(Module &M)
 {
 
     errs() << "Exit Pass opt for " << M.getName() << "\n";
 
-    if (M.getName().contains("stubMain") == true)
+    if (isClosureStubModule(M.getName()))
     {
-        errs() << "Not running exit pass for " << M.getName() << "\n";
         return false;
     }
 
