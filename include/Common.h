@@ -20,6 +20,7 @@
 #define STUB_FILE_NAME_PREFIX "stubMain"
 #define TARGET_MAIN_FUNC "start_main"
 #define ENTRYPOINT_NAME "main"
+#define CLOSURE_GLOBAL_RESTORE_NAME "CLOSURE_GLOBAL_RESTORE_NAME"
 
 using namespace llvm;
 
@@ -30,4 +31,6 @@ using namespace llvm;
  * @return true
  * @return false
  */
-bool isClosureStubModule(StringRef );
+bool isClosureStubModule(StringRef);
+
+std::string generateRandomString(int len);
