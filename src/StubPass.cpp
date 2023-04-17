@@ -2,7 +2,8 @@
  * This pass helps stub a new main onto the original function so we can do further memory management
  * and rapid function testing.
  */
-
+#include <fstream>
+#include <iostream>
 #include "StubPass.h"
 
 using namespace llvm;
@@ -23,6 +24,7 @@ bool ModifyStubPass::runOnModule(Module &M)
 
 	if (isClosureStubModule(M.getName()) == false)
 	{
+		errs() << "Not the stub Module\n";
 		return false;
 	}
 
@@ -69,8 +71,17 @@ bool ModifyStubPass::runOnModule(Module &M)
 		errs() << "Could not find any call to start_main\n";
 	}
 
-	auto restoreGlobalsFunc = M.getOrInsertFunction("restore_globals_test_global", FunctionType::get(Type::getVoidTy(M.getContext()), false));
-	CallInst::Create(restoreGlobalsFunc.getFunctionType(), restoreGlobalsFunc.getCallee(), "", insertPt);
+	// Inserting calls to restore_globals_... functions
+	std::fstream f;
+	f.open(CLOSURE_GLOBAL_RESTORE_FILE, std::ios::in);
+	std::string funcName;
+	while (getline(f, funcName))
+	{
+		errs() << "Got function " << funcName << "\n";
+		auto restoreGlobalsFunc = M.getOrInsertFunction(funcName, FunctionType::get(Type::getVoidTy(M.getContext()), false));
+		CallInst::Create(restoreGlobalsFunc.getFunctionType(), restoreGlobalsFunc.getCallee(), "", insertPt);
+	}
+	f.close();
 	return true;
 }
 

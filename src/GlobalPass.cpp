@@ -1,8 +1,6 @@
-/**
- * This pass is for renaming the main function of the desired piece of code.
- */
+#include <fstream>
+#include <iostream>
 #include "GlobalPass.h"
-using namespace llvm;
 
 /**
  * @brief  * This method inserts instructions to restore the global variable after every execution (using Load and Store)
@@ -16,8 +14,22 @@ using namespace llvm;
  */
 void CloneGlobalsPass::restoreGlobalVariables(Module &M, GlobalVariable &original, GlobalVariable &clone)
 {
+  static bool insertedFuncName = false;
+  static std::string funcName;
   auto funcType = FunctionType::get(Type::getVoidTy(M.getContext()), false);
-  auto funcName = "restore_globals_test_global"; // M.getName().slice(2, M.getName().size() - 3);
+
+  if (!insertedFuncName)
+  {
+    funcName = "restore_globals_" + generateRandomString(5); // M.getName().slice(2, M.getName().size() - 3);
+
+    std::fstream f;
+    f.open(CLOSURE_GLOBAL_RESTORE_FILE, std::ios::app);
+    f << funcName << "\n";
+    f.close();
+    insertedFuncName = true;
+    errs() << "Inserted restore function " << funcName << " for " << M.getName() << "\n";
+  }
+
   auto restoreGlobal = dyn_cast<Function>(M.getOrInsertFunction(funcName, funcType).getCallee());
   BasicBlock *entryBlock = nullptr;
 

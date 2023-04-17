@@ -1,4 +1,6 @@
 #include <random>
+#include <sys/types.h>
+#include <unistd.h>
 #include "Common.h"
 
 bool isClosureStubModule(StringRef moduleName)
@@ -8,7 +10,7 @@ bool isClosureStubModule(StringRef moduleName)
 
 std::string generateRandomString(int len)
 {
-    srand((unsigned)time(NULL));
+    srand((unsigned)time(NULL) * getpid());
 
     static const char alphanum[] =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
