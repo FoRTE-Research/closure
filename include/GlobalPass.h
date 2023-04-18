@@ -13,7 +13,11 @@ class CloneGlobalsPass : public ModulePass
 public:
     static char ID;
 
-    CloneGlobalsPass() : ModulePass(ID){};
+    bool insertedFuncName;
+
+    std::string funcName;
+
+    CloneGlobalsPass() : ModulePass(ID), insertedFuncName{false}, funcName{""} {};
 
     void restoreGlobalVariables(Module &M, GlobalVariable &original, GlobalVariable &clone);
 

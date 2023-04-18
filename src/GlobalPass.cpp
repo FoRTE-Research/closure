@@ -14,8 +14,6 @@
  */
 void CloneGlobalsPass::restoreGlobalVariables(Module &M, GlobalVariable &original, GlobalVariable &clone)
 {
-  static bool insertedFuncName = false;
-  static std::string funcName;
   auto funcType = FunctionType::get(Type::getVoidTy(M.getContext()), false);
 
   if (!insertedFuncName)
