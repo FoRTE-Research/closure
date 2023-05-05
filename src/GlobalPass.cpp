@@ -73,23 +73,6 @@ void CloneGlobalsPass::cloneGlobals(Module &M) {
       Global.setSection(CLOSURE_GLOBAL_SECTION);
     }
 
-    // if (Global.getName().contains("_copy") == false)
-    // {
-    //   if (Global.getName().contains('.') == false)
-    //   {
-    //     GlobalVariable *new_var = new GlobalVariable(
-    //         M,
-    //         (Global.getType()->isPointerTy() ?
-    //         Global.getType()->getPointerElementType() : Global.getType()),
-    //         Global.isConstant(),
-    //         Global.getLinkage(),
-    //         Global.getInitializer(),
-    //         Global.getName() + "_copy");
-    //     new_var->setAlignment(MaybeAlign(Global.getAlignment()));
-
-    //     restoreGlobalVariables(M, Global, *new_var);
-    //   }
-    // }
   }
 }
 
