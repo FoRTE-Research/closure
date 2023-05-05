@@ -123,10 +123,10 @@ int main(int argc, char *argv[])
 
     copy_global_sections(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
 
-    for (int i = 0; i < 10; ++i)
+    __AFL_INIT();
+    while (__AFL_LOOP(10000))
     {
 
-        
         //  set the buffer for the program to reset to this point instead of exiting
         if (setjmp(__longjmp_buf__))
         {
