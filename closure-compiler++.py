@@ -5,7 +5,7 @@ import sys
 import os
 
 AFL_PATH = "/home/jack/projects/AFLplusplus/"
-AFL_CLANG_FAST = os.path.join(AFL_PATH, "afl-clang-fast")
+AFL_CLANG_FAST = os.path.join(AFL_PATH, "afl-clang-fast++")
 
 CLOSURE_PATH = "/home/jack/projects/closure"
 CLOSURE_STUB = os.path.join(CLOSURE_PATH, "instrumentation/tools/src/stubMain.c")
@@ -26,7 +26,7 @@ def create_compilation_command():
     if not compile_command:
         i = 0
         for arg in argv:
-            if "closure-compiler.py" in arg:
+            if "closure-compiler++.py" in arg:
                 argv[i] = AFL_CLANG_FAST
             i += 1
         return argv

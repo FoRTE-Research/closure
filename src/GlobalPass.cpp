@@ -1,44 +1,46 @@
+#include "GlobalPass.h"
 #include <fstream>
 #include <iostream>
-#include "GlobalPass.h"
 
 /**
- * @brief  * This method inserts instructions to restore the global variable after every execution (using Load and Store)
- * It uses the copy of every global variable made in the cloneGlobals method.
- * Since globals can be present and used in any compilation unit, we insert a new function in each module
- * to restore globals
+ * @brief  * This method inserts instructions to restore the global variable
+ * after every execution (using Load and Store) It uses the copy of every global
+ * variable made in the cloneGlobals method. Since globals can be present and
+ * used in any compilation unit, we insert a new function in each module to
+ * restore globals
  *
  * @param M
  * @param original
  * @param clone
  */
-void CloneGlobalsPass::restoreGlobalVariables(Module &M, GlobalVariable &original, GlobalVariable &clone)
-{
+void CloneGlobalsPass::restoreGlobalVariables(Module &M,
+                                              GlobalVariable &original,
+                                              GlobalVariable &clone) {
   auto funcType = FunctionType::get(Type::getVoidTy(M.getContext()), false);
 
-  if (!insertedFuncName)
-  {
-    funcName = "restore_globals_" + generateRandomString(5); // M.getName().slice(2, M.getName().size() - 3);
+  if (!insertedFuncName) {
+    funcName = "restore_globals_" +
+               generateRandomString(
+                   5); // M.getName().slice(2, M.getName().size() - 3);
 
     std::fstream f;
     f.open(CLOSURE_GLOBAL_RESTORE_FILE, std::ios::app);
     f << funcName << "\n";
     f.close();
     insertedFuncName = true;
-    errs() << "Inserted restore function " << funcName << " for " << M.getName() << "\n";
+    errs() << "Inserted restore function " << funcName << " for " << M.getName()
+           << "\n";
   }
 
-  auto restoreGlobal = dyn_cast<Function>(M.getOrInsertFunction(funcName, funcType).getCallee());
+  auto restoreGlobal =
+      dyn_cast<Function>(M.getOrInsertFunction(funcName, funcType).getCallee());
   BasicBlock *entryBlock = nullptr;
 
-  if (restoreGlobal->getInstructionCount() == 0)
-  {
+  if (restoreGlobal->getInstructionCount() == 0) {
     // Function has just been created, insert a basic block into it
     entryBlock = BasicBlock::Create(M.getContext(), "entry", restoreGlobal);
     ReturnInst::Create(M.getContext(), entryBlock);
-  }
-  else
-  {
+  } else {
     entryBlock = &(restoreGlobal->getEntryBlock());
   }
 
@@ -60,29 +62,34 @@ void CloneGlobalsPass::restoreGlobalVariables(Module &M, GlobalVariable &origina
  *
  * @param M
  */
-void CloneGlobalsPass::cloneGlobals(Module &M)
-{
+void CloneGlobalsPass::cloneGlobals(Module &M) {
 
   auto &list = M.getGlobalList();
 
-  for (auto &Global : list)
-  {
-    if (Global.getName().contains("_copy") == false)
-    {
-      if (Global.getName().contains('.') == false)
-      {
-        GlobalVariable *new_var = new GlobalVariable(
-            M,
-            (Global.getType()->isPointerTy() ? Global.getType()->getPointerElementType() : Global.getType()),
-            Global.isConstant(),
-            Global.getLinkage(),
-            Global.getInitializer(),
-            Global.getName() + "_copy");
-        new_var->setAlignment(MaybeAlign(Global.getAlignment()));
+  for (auto &Global : list) {
+    outs() << "Global is " << Global << "\n";
 
-        restoreGlobalVariables(M, Global, *new_var);
-      }
+    if (Global.hasSection() == false) {
+      Global.setSection(CLOSURE_GLOBAL_SECTION);
     }
+
+    // if (Global.getName().contains("_copy") == false)
+    // {
+    //   if (Global.getName().contains('.') == false)
+    //   {
+    //     GlobalVariable *new_var = new GlobalVariable(
+    //         M,
+    //         (Global.getType()->isPointerTy() ?
+    //         Global.getType()->getPointerElementType() : Global.getType()),
+    //         Global.isConstant(),
+    //         Global.getLinkage(),
+    //         Global.getInitializer(),
+    //         Global.getName() + "_copy");
+    //     new_var->setAlignment(MaybeAlign(Global.getAlignment()));
+
+    //     restoreGlobalVariables(M, Global, *new_var);
+    //   }
+    // }
   }
 }
 
@@ -93,12 +100,10 @@ void CloneGlobalsPass::cloneGlobals(Module &M)
  * @return true
  * @return false
  */
-bool CloneGlobalsPass::runOnModule(Module &M)
-{
+bool CloneGlobalsPass::runOnModule(Module &M) {
   errs() << "Running global variable clone pass\n";
   errs() << M.getName() << "\n\n";
-  if (isClosureStubModule(M.getName()))
-  {
+  if (isClosureStubModule(M.getName())) {
     return false;
   }
 
