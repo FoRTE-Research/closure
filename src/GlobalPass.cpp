@@ -68,7 +68,7 @@ void CloneGlobalsPass::cloneGlobals(Module &M) {
 
   for (auto &Global : list) {
 
-    if (Global.hasSection() == false) {
+    if (Global.hasSection() == false && Global.isConstant() == false) {
       Global.setSection(CLOSURE_GLOBAL_SECTION);
     }
   }
