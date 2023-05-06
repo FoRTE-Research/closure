@@ -17,10 +17,12 @@ CLOSURE_PASS = os.path.join(CLOSURE_PATH, "build/libclosure.so")
 CLOSURE_FLAGS = ["-Xclang", "-load", "-Xclang"]
 
 CLOSURE_STUB_REQUIRED_STRING = "undefined reference to `main'"
+NO_FUZZ=False
 
 
 def create_compilation_command():
 
+    global NO_FUZZ
     compile_command = False
     for i in sys.argv:
         if (".c" in i or  ".o" in i):
@@ -30,11 +32,10 @@ def create_compilation_command():
     i = 0
 
     if "-no-fuzz" in argv:
-        CLOSURE_FLAGS.append(CLOSURE_STUB)
         COMPILER = DEFAULT_COMPILER
+        NO_FUZZ=True
         argv.remove("-no-fuzz")
     else:
-        CLOSURE_FLAGS.append(CLOSURE_STUB_AFL)
         COMPILER = AFL_CLANG_FAST
 
     for arg in argv:
@@ -54,9 +55,13 @@ def perform_compilation():
     run = subprocess.run(command,  capture_output=True, text=True)
     
     if (CLOSURE_STUB_REQUIRED_STRING in run.stderr):
-        command += [CLOSURE_STUB]
+        if NO_FUZZ:
+            command += [CLOSURE_STUB]
+        else:
+            command += [CLOSURE_STUB_AFL]
         run = subprocess.run(command,  capture_output=True, text=True)
-    print(run.stdout)
+
+    print(run.stderr)
 
 
 perform_compilation()
