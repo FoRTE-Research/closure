@@ -94,6 +94,10 @@ void close_file_if_open(FILE *fp)
     }
 }
 
+void exitHook(int status) {
+    longjmp(__longjmp_buf__, status);
+}
+
 void copy_global_sections(char *closure_global_section_addr, char *closure_global_section_copy, int closure_global_section_size)
 {
     mempcpy(closure_global_section_copy, closure_global_section_addr, closure_global_section_size);
@@ -114,9 +118,9 @@ int main(int argc, char *argv[])
     // Run the program x number of times, the setjmp/longjmp logic
     // does not impact the loop counters
 
-    int closure_global_section_size = atoi(argv[2]);
+    int closure_global_section_size = atoi(getenv("CLOSURE_GLOBAL_SECTION_SIZE"));
 
-    int closure_global_section_addr = atoi(argv[1]);
+    int closure_global_section_addr = atoi(getenv("CLOSURE_GLOBAL_SECTION_ADDR"));
 
 
     char *closure_global_section_copy = malloc(closure_global_section_size);
