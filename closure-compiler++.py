@@ -14,6 +14,9 @@ CLOSURE_STUB = os.path.join(CLOSURE_PATH, "instrumentation/tools/src/stubMain.c"
 CLOSURE_STUB_AFL = os.path.join(CLOSURE_PATH, "instrumentation/tools/src/stubMainAFL.c")
 CLOSURE_PASS = os.path.join(CLOSURE_PATH, "build/libclosure.so")
 
+DENYLIST_FILE = os.path.join(CLOSURE_PATH, "denylist.txt")
+
+
 CLOSURE_FLAGS = ["-Xclang", "-load", "-Xclang"]
 
 CLOSURE_STUB_REQUIRED_STRING = "undefined reference to `main'"
@@ -52,16 +55,20 @@ def create_compilation_command():
 
 def perform_compilation():
     command = create_compilation_command()
-    run = subprocess.run(command,  capture_output=True, text=True)
     
+    env = os.environ.copy()
+    env["AFL_LLVM_DENYLIST"] = DENYLIST_FILE
+
+    run = subprocess.run(command,  capture_output=True, text=True, env=env)
+
     if (CLOSURE_STUB_REQUIRED_STRING in run.stderr):
         if NO_FUZZ:
             command += [CLOSURE_STUB]
         else:
             command += [CLOSURE_STUB_AFL]
-        run = subprocess.run(command,  capture_output=True, text=True)
+        run = subprocess.run(command,  capture_output=True, text=True, env=env)
 
-    print(run.stderr)
+    print(run.stdout)
 
 
 perform_compilation()
