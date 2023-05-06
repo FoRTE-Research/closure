@@ -67,12 +67,10 @@ void CloneGlobalsPass::cloneGlobals(Module &M) {
   auto &list = M.getGlobalList();
 
   for (auto &Global : list) {
-    outs() << "Global is " << Global << "\n";
 
     if (Global.hasSection() == false) {
       Global.setSection(CLOSURE_GLOBAL_SECTION);
     }
-
   }
 }
 
