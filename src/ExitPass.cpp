@@ -31,8 +31,6 @@ void ExitHookPass::hookExit(Module &M)
 bool ExitHookPass::runOnModule(Module &M)
 {
 
-    errs() << "Exit Pass opt for " << M.getName() << "\n";
-
     if (isClosureStubModule(M.getName()))
     {
         return false;

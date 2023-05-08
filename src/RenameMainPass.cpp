@@ -23,8 +23,7 @@ bool RenameMainPass::runOnModule(Module &M)
         auto funcName = F.getName();
         if (funcName == ENTRYPOINT_NAME)
         {
-            errs() << "Changing " << F.getName() << " to start_main"
-                   << "\n";
+
             F.setName("start_main");
         }
     }

@@ -26,13 +26,13 @@ void HeapResetPass::heapManage(Module &M)
     if (callocFunc != nullptr)
     {
         // We have calls to malloc in this module, replace them
-        auto myCalloc = M.getOrInsertFunction("myCalloc", mallocFunc->getFunctionType());
+        auto myCalloc = M.getOrInsertFunction("myCalloc", callocFunc->getFunctionType());
         callocFunc->replaceAllUsesWith(myCalloc.getCallee());
     }
     if (reallocFunc != nullptr)
     {
         // We have calls to malloc in this module, replace them
-        auto myRealloc = M.getOrInsertFunction("myRealloc", mallocFunc->getFunctionType());
+        auto myRealloc = M.getOrInsertFunction("myRealloc", reallocFunc->getFunctionType());
         reallocFunc->replaceAllUsesWith(myRealloc.getCallee());
     }
     if (freeFunc != nullptr)
@@ -53,8 +53,6 @@ void HeapResetPass::heapManage(Module &M)
  */
 bool HeapResetPass::runOnModule(Module &M)
 {
-
-    errs() << "Heap Pass opt for " << M.getName() << "\n";
 
     if (isClosureStubModule(M.getName()))
     {

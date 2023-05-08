@@ -85,8 +85,6 @@ void CloneGlobalsPass::cloneGlobals(Module &M)
  */
 bool CloneGlobalsPass::runOnModule(Module &M)
 {
-    errs() << "Running global variable clone pass\n";
-    errs() << M.getName() << "\n\n";
     if (isClosureStubModule(M.getName()))
     {
         return false;
