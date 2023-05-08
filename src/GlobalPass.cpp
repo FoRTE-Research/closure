@@ -13,46 +13,45 @@
  * @param original
  * @param clone
  */
-void CloneGlobalsPass::restoreGlobalVariables(Module &M,
-                                              GlobalVariable &original,
-                                              GlobalVariable &clone) {
-  auto funcType = FunctionType::get(Type::getVoidTy(M.getContext()), false);
+void CloneGlobalsPass::restoreGlobalVariables(Module &M, GlobalVariable &original, GlobalVariable &clone)
+{
+    auto funcType = FunctionType::get(Type::getVoidTy(M.getContext()), false);
 
-  if (!insertedFuncName) {
-    funcName = "restore_globals_" +
-               generateRandomString(
-                   5); // M.getName().slice(2, M.getName().size() - 3);
+    if (!insertedFuncName)
+    {
+        funcName = "restore_globals_" + generateRandomString(5); // M.getName().slice(2, M.getName().size() - 3);
 
-    std::fstream f;
-    f.open(CLOSURE_GLOBAL_RESTORE_FILE, std::ios::app);
-    f << funcName << "\n";
-    f.close();
-    insertedFuncName = true;
-    errs() << "Inserted restore function " << funcName << " for " << M.getName()
-           << "\n";
-  }
+        std::fstream f;
+        f.open(CLOSURE_GLOBAL_RESTORE_FILE, std::ios::app);
+        f << funcName << "\n";
+        f.close();
+        insertedFuncName = true;
+        errs() << "Inserted restore function " << funcName << " for " << M.getName() << "\n";
+    }
 
-  auto restoreGlobal =
-      dyn_cast<Function>(M.getOrInsertFunction(funcName, funcType).getCallee());
-  BasicBlock *entryBlock = nullptr;
+    auto restoreGlobal = dyn_cast<Function>(M.getOrInsertFunction(funcName, funcType).getCallee());
+    BasicBlock *entryBlock = nullptr;
 
-  if (restoreGlobal->getInstructionCount() == 0) {
-    // Function has just been created, insert a basic block into it
-    entryBlock = BasicBlock::Create(M.getContext(), "entry", restoreGlobal);
-    ReturnInst::Create(M.getContext(), entryBlock);
-  } else {
-    entryBlock = &(restoreGlobal->getEntryBlock());
-  }
+    if (restoreGlobal->getInstructionCount() == 0)
+    {
+        // Function has just been created, insert a basic block into it
+        entryBlock = BasicBlock::Create(M.getContext(), "entry", restoreGlobal);
+        ReturnInst::Create(M.getContext(), entryBlock);
+    }
+    else
+    {
+        entryBlock = &(restoreGlobal->getEntryBlock());
+    }
 
-  IRBuilder<> builder(M.getContext());
-  builder.SetInsertPoint(entryBlock->getTerminator());
+    IRBuilder<> builder(M.getContext());
+    builder.SetInsertPoint(entryBlock->getTerminator());
 
-  // Let's create terminator for the function before inserting anything else
+    // Let's create terminator for the function before inserting anything else
 
-  Value *v = dyn_cast<Value>(&clone);
-  Value *v2 = dyn_cast<Value>(&original);
-  LoadInst *Load = builder.CreateLoad(v);
-  StoreInst *Store = builder.CreateStore(Load, v2);
+    Value *v = dyn_cast<Value>(&clone);
+    Value *v2 = dyn_cast<Value>(&original);
+    LoadInst *Load = builder.CreateLoad(v);
+    StoreInst *Store = builder.CreateStore(Load, v2);
 }
 
 /**
@@ -62,16 +61,19 @@ void CloneGlobalsPass::restoreGlobalVariables(Module &M,
  *
  * @param M
  */
-void CloneGlobalsPass::cloneGlobals(Module &M) {
+void CloneGlobalsPass::cloneGlobals(Module &M)
+{
 
-  auto &list = M.getGlobalList();
+    auto &list = M.getGlobalList();
 
-  for (auto &Global : list) {
+    for (auto &Global : list)
+    {
 
-    if (Global.hasSection() == false && Global.isConstant() == false) {
-      Global.setSection(CLOSURE_GLOBAL_SECTION);
+        if (Global.hasSection() == false && Global.isConstant() == false)
+        {
+            Global.setSection(CLOSURE_GLOBAL_SECTION);
+        }
     }
-  }
 }
 
 /**
@@ -81,15 +83,17 @@ void CloneGlobalsPass::cloneGlobals(Module &M) {
  * @return true
  * @return false
  */
-bool CloneGlobalsPass::runOnModule(Module &M) {
-  errs() << "Running global variable clone pass\n";
-  errs() << M.getName() << "\n\n";
-  if (isClosureStubModule(M.getName())) {
-    return false;
-  }
+bool CloneGlobalsPass::runOnModule(Module &M)
+{
+    errs() << "Running global variable clone pass\n";
+    errs() << M.getName() << "\n\n";
+    if (isClosureStubModule(M.getName()))
+    {
+        return false;
+    }
 
-  cloneGlobals(M);
-  return true;
+    cloneGlobals(M);
+    return true;
 }
 
 char CloneGlobalsPass::ID = 0;

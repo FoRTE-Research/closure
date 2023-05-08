@@ -13,22 +13,22 @@
 bool RenameMainPass::runOnModule(Module &M)
 {
 
-  if (isClosureStubModule(M.getName()))
-  {
-    return false;
-  }
-
-  for (auto &F : M)
-  {
-    auto funcName = F.getName();
-    if (funcName == ENTRYPOINT_NAME)
+    if (isClosureStubModule(M.getName()))
     {
-      errs() << "Changing " << F.getName() << " to start_main"
-             << "\n";
-      F.setName("start_main");
+        return false;
     }
-  }
-  return true;
+
+    for (auto &F : M)
+    {
+        auto funcName = F.getName();
+        if (funcName == ENTRYPOINT_NAME)
+        {
+            errs() << "Changing " << F.getName() << " to start_main"
+                   << "\n";
+            F.setName("start_main");
+        }
+    }
+    return true;
 }
 
 char RenameMainPass::ID = 2;

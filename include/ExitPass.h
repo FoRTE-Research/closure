@@ -10,7 +10,7 @@
  */
 class ExitHookPass : public ModulePass
 {
-public:
+  public:
     static char ID;
 
     ExitHookPass() : ModulePass(ID){};

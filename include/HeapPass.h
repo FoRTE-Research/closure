@@ -10,7 +10,7 @@
  */
 class HeapResetPass : public ModulePass
 {
-public:
+  public:
     static char ID;
 
     HeapResetPass() : ModulePass(ID){};

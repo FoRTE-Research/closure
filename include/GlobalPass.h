@@ -11,20 +11,20 @@
  * value
  *
  */
-class CloneGlobalsPass : public ModulePass {
-public:
-  static char ID;
+class CloneGlobalsPass : public ModulePass
+{
+  public:
+    static char ID;
 
-  bool insertedFuncName;
+    bool insertedFuncName;
 
-  std::string funcName;
+    std::string funcName;
 
-  CloneGlobalsPass() : ModulePass(ID), insertedFuncName{false}, funcName{""} {};
+    CloneGlobalsPass() : ModulePass(ID), insertedFuncName{false}, funcName{""} {};
 
-  void restoreGlobalVariables(Module &M, GlobalVariable &original,
-                              GlobalVariable &clone);
+    void restoreGlobalVariables(Module &M, GlobalVariable &original, GlobalVariable &clone);
 
-  void cloneGlobals(Module &M);
+    void cloneGlobals(Module &M);
 
-  virtual bool runOnModule(Module &M);
+    virtual bool runOnModule(Module &M);
 };

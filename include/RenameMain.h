@@ -9,10 +9,12 @@
  */
 class RenameMainPass : public ModulePass
 {
-public:
+  public:
     static char ID;
 
-    RenameMainPass() : ModulePass(ID) {}
+    RenameMainPass() : ModulePass(ID)
+    {
+    }
 
     virtual bool runOnModule(Module &M);
 };

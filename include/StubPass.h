@@ -9,7 +9,7 @@
  */
 class ModifyStubPass : public ModulePass
 {
-public:
+  public:
     static char ID;
 
     ModifyStubPass() : ModulePass(ID){};
