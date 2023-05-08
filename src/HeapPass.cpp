@@ -12,22 +12,36 @@
  */
 void HeapResetPass::heapManage(Module &M)
 {
-  auto freeFunc = M.getFunction("free");
-  auto mallocFunc = M.getFunction("malloc");
+    auto freeFunc = M.getFunction("free");
+    auto mallocFunc = M.getFunction("malloc");
+    auto callocFunc = M.getFunction("calloc");
+    auto reallocFunc = M.getFunction("realloc");
 
-  if (mallocFunc != nullptr)
-  {
-    // We have calls to malloc in this module, replace them
-    auto myMalloc = M.getOrInsertFunction("myMalloc", mallocFunc->getFunctionType());
-    mallocFunc->replaceAllUsesWith(myMalloc.getCallee());
-  }
-  if (freeFunc != nullptr)
-  {
-    // We have calls to free in this module, replace them
-    auto myFree = M.getOrInsertFunction("myFree", freeFunc->getFunctionType());
+    if (mallocFunc != nullptr)
+    {
+        // We have calls to malloc in this module, replace them
+        auto myMalloc = M.getOrInsertFunction("myMalloc", mallocFunc->getFunctionType());
+        mallocFunc->replaceAllUsesWith(myMalloc.getCallee());
+    }
+    if (callocFunc != nullptr)
+    {
+        // We have calls to malloc in this module, replace them
+        auto myCalloc = M.getOrInsertFunction("myCalloc", mallocFunc->getFunctionType());
+        callocFunc->replaceAllUsesWith(myCalloc.getCallee());
+    }
+    if (reallocFunc != nullptr)
+    {
+        // We have calls to malloc in this module, replace them
+        auto myRealloc = M.getOrInsertFunction("myRealloc", mallocFunc->getFunctionType());
+        reallocFunc->replaceAllUsesWith(myRealloc.getCallee());
+    }
+    if (freeFunc != nullptr)
+    {
+        // We have calls to free in this module, replace them
+        auto myFree = M.getOrInsertFunction("myFree", freeFunc->getFunctionType());
 
-    freeFunc->replaceAllUsesWith(myFree.getCallee());
-  }
+        freeFunc->replaceAllUsesWith(myFree.getCallee());
+    }
 }
 
 /**
@@ -40,15 +54,15 @@ void HeapResetPass::heapManage(Module &M)
 bool HeapResetPass::runOnModule(Module &M)
 {
 
-  errs() << "Heap Pass opt for " << M.getName() << "\n";
+    errs() << "Heap Pass opt for " << M.getName() << "\n";
 
-  if (isClosureStubModule(M.getName()))
-  {
-    return false;
-  }
+    if (isClosureStubModule(M.getName()))
+    {
+        return false;
+    }
 
-  heapManage(M);
-  return true;
+    heapManage(M);
+    return true;
 }
 
 char HeapResetPass::ID = 3;

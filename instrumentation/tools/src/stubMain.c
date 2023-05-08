@@ -1,8 +1,8 @@
-#include <stdio.h>
-#include <time.h>
-#include <stdlib.h>
-#include <setjmp.h>
 #include "uthash.h"
+#include <setjmp.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 jmp_buf __longjmp_buf__;
 
@@ -25,7 +25,8 @@ void add_ptr(void *key_ptr)
     s = malloc(sizeof(ptr_obj));
     s->key = key_ptr;
     s->i = 1;
-    HASH_ADD_PTR(ptr_map, key, s); /* id: name of key field!!! LOOK MORE INTO THIS, REPLACE WITH THE CORRECT FUNCTION FOR ADDING A VOID POINTER AND THEN RECREATE WITH FIND */
+    HASH_ADD_PTR(ptr_map, key, s); /* id: name of key field!!! LOOK MORE INTO THIS, REPLACE WITH THE CORRECT FUNCTION
+                                      FOR ADDING A VOID POINTER AND THEN RECREATE WITH FIND */
 }
 
 // Responsible for finding the pointer to confirm that
@@ -33,7 +34,8 @@ ptr_obj *find_ptr(void *ptr_id)
 {
     ptr_obj *s;
 
-    HASH_FIND_PTR(ptr_map, &ptr_id, s); // Change to the correct function for storing a void pointer, maybe this can be simplified.
+    HASH_FIND_PTR(ptr_map, &ptr_id,
+                  s); // Change to the correct function for storing a void pointer, maybe this can be simplified.
     return s;
 }
 
@@ -55,6 +57,39 @@ void *myMalloc(size_t size)
 {
     void *tmp = malloc(size);
     add_ptr(tmp);
+    return tmp;
+}
+
+/*
+ * myCalloc is a stub function for malloc which stores the returned void type pointer
+ * inside of an array to be deallocated in the event that free is never called
+ */
+void *myCalloc(size_t nmemb, size_t size)
+{
+    void *tmp = calloc(nmemb, size);
+    if (tmp != NULL)
+    {
+        add_ptr(tmp);
+    }
+    return tmp;
+}
+
+/*
+ * myRealloc is a stub function for malloc which stores the returned void type pointer
+ * inside of an array to be deallocated in the event that free is never called
+ */
+void *myRealloc(void *ptr, size_t size)
+{
+    void *tmp = realloc(ptr, size);
+    if (ptr != NULL)
+    {
+        ptr_obj *p = find_ptr(ptr);
+        delete_ptr(p);
+    }
+    if (tmp != NULL && size != 0)
+    {
+        add_ptr(tmp);
+    }
     return tmp;
 }
 
@@ -94,17 +129,20 @@ void close_file_if_open(FILE *fp)
     }
 }
 
-void exitHook(int status) {
+void exitHook(int status)
+{
     longjmp(__longjmp_buf__, status);
 }
 
-void copy_global_sections(char *closure_global_section_addr, char *closure_global_section_copy, int closure_global_section_size)
+void copy_global_sections(char *closure_global_section_addr, char *closure_global_section_copy,
+                          int closure_global_section_size)
 {
     mempcpy(closure_global_section_copy, closure_global_section_addr, closure_global_section_size);
     return;
 }
 
-void restore_global_sections(char *closure_global_section_addr, char *closure_global_section_copy, int closure_global_section_size)
+void restore_global_sections(char *closure_global_section_addr, char *closure_global_section_copy,
+                             int closure_global_section_size)
 {
     mempcpy(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
     return;
@@ -122,7 +160,6 @@ int main(int argc, char *argv[])
 
     int closure_global_section_addr = atoi(getenv("CLOSURE_GLOBAL_SECTION_ADDR"));
 
-
     char *closure_global_section_copy = malloc(closure_global_section_size);
 
     copy_global_sections(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
@@ -130,7 +167,6 @@ int main(int argc, char *argv[])
     for (int i = 0; i < 10; ++i)
     {
 
-        
         //  set the buffer for the program to reset to this point instead of exiting
         if (setjmp(__longjmp_buf__))
         {
