@@ -78,7 +78,7 @@ def perform_compilation():
             command += [CLOSURE_STUB_AFL]
         run = subprocess.run(command,  capture_output=True, text=True, env=env)
         
-    print(run.stdout)
+    print(run.stderr)
 
 
 perform_compilation()
