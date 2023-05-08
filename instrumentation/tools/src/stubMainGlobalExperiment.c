@@ -132,8 +132,11 @@ void close_file_if_open(FILE *fp)
     }
 }
 
+int ret = 0;
+
 void exitHook(int status)
 {
+    ret = status;
     longjmp(__longjmp_buf__, status);
 }
 
@@ -193,7 +196,7 @@ int main(int argc, char *argv[])
         else
         {
             // just verify that all pointers are null before starting program
-            start_main(argc, argv);
+            ret = start_main(argc, argv);
         }
 
         free_ptrs();
@@ -207,5 +210,5 @@ int main(int argc, char *argv[])
 
     printf("\n---Done with Testing---\n");
 
-    return 0;
+    return ret;
 }

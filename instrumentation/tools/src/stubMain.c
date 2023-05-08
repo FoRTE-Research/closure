@@ -129,8 +129,11 @@ void close_file_if_open(FILE *fp)
     }
 }
 
+int ret = 0;
+
 void exitHook(int status)
 {
+    ret = status;
     longjmp(__longjmp_buf__, status);
 }
 
@@ -161,7 +164,6 @@ int main(int argc, char *argv[])
     int closure_global_section_addr = atoi(getenv("CLOSURE_GLOBAL_SECTION_ADDR"));
 
     char *closure_global_section_copy = malloc(closure_global_section_size);
-
     copy_global_sections(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
 
     for (int i = 0; i < 10; ++i)
@@ -175,7 +177,7 @@ int main(int argc, char *argv[])
         else
         {
             // just verify that all pointers are null before starting program
-            start_main(argc, argv);
+            ret = start_main(argc, argv);
         }
 
         free_ptrs();
@@ -185,5 +187,5 @@ int main(int argc, char *argv[])
 
     printf("\n---Done with Testing---\n");
 
-    return 0;
+    return ret;
 }
