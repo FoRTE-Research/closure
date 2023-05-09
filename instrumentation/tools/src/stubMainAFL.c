@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
     copy_global_sections(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
 
     __AFL_INIT();
-    while (__AFL_LOOP(10000))
+    while (__AFL_LOOP(1000000))
     {
 
         //  set the buffer for the program to reset to this point instead of exiting
