@@ -196,7 +196,7 @@ void close_open_file_handles()
     HASH_ITER(hh, file_ptr_map, s, tmp)
     {
         fclose(s->f);
-        delete_ptr(s);
+        delete_file_ptr(s);
     }
 }
 
