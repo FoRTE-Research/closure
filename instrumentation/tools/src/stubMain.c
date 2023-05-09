@@ -151,6 +151,41 @@ void restore_global_sections(char *closure_global_section_addr, char *closure_gl
     return;
 }
 
+FILE * open_handles[40];
+int num_open_handles = 0;
+
+FILE *fopen_hook(const char *pathname, const char *mode) {
+    FILE * f = fopen(pathname, mode);
+    printf("Fopen called for %s return %p\n", pathname, f);
+
+    open_handles[num_open_handles] = f;
+    num_open_handles++;
+    return f;
+}
+
+int fclose_hook(FILE *f) {
+    for (int i =0; i < num_open_handles; ++i) {
+        if (open_handles[i] == f) {
+            open_handles[i] = NULL;
+        }
+    }
+    printf("Fclose called for %p\n", f);
+    return fclose(f);
+}
+
+void close_open_file_handles() {
+
+    for (int i = 0; i < 20; ++i) {
+        if (open_handles[i] != NULL) {
+            printf("Closing %p\n", open_handles[i]);
+            fclose(open_handles[i]);
+        }
+        open_handles[i] = NULL;
+    }
+    num_open_handles = 0;
+
+}
+
 // Might want to account for frees that happen out of order,
 // use some null checks to properly iterate through the array, _ctr
 // just points to the deepest point of the array,
@@ -181,6 +216,7 @@ int main(int argc, char *argv[])
         }
 
         free_ptrs();
+        close_open_file_handles();
         printf("Closure - section addr %p\n", closure_global_section_addr);
         restore_global_sections(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
     }

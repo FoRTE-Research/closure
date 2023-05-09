@@ -1,4 +1,5 @@
 #include "ExitPass.h"
+#include "FilePass.h"
 #include "GlobalPass.h"
 #include "HeapPass.h"
 #include "RenameMain.h"
@@ -10,6 +11,7 @@ void addClosurePass(const PassManagerBuilder & /* unused */, legacy::PassManager
     PM.add(new HeapResetPass());
     PM.add(new ExitHookPass());
     PM.add(new CloneGlobalsPass());
+    PM.add(new FileHookPass());
 }
 
 // Register the pass so `opt -mempass` runs it.
