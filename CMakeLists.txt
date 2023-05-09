@@ -20,6 +20,7 @@ add_library(closure MODULE
     ./src/ExitPass.cpp
     ./src/GlobalPass.cpp
     ./src/StubPass.cpp
+    ./src/FilePass.cpp
 )
 
 set_target_properties(closure PROPERTIES
