@@ -42,7 +42,7 @@ def create_compilation_command():
         COMPILER = AFL_CLANG_FAST
 
     for arg in argv:
-        if "closure-compiler.py" in arg:
+        if "closure-compiler++.py" in arg:
             argv[i] = COMPILER
         i += 1
     
