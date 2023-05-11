@@ -224,13 +224,20 @@ int main(int argc, char *argv[])
     // Run the program x number of times, the setjmp/longjmp logic
     // does not impact the loop counters
 
-    int closure_global_section_size = atoi(getenv("CLOSURE_GLOBAL_SECTION_SIZE"));
+    int reset_globals = 0;
+    int closure_global_section_size = 0;
+    int closure_global_section_addr = 0;
+    char *closure_global_section_copy = NULL;
+    if (getenv("CLOSURE_GLOBAL_SECTION_SIZE") && getenv("CLOSURE_GLOBAL_SECTION_ADDR")) {
+        closure_global_section_size = atoi(getenv("CLOSURE_GLOBAL_SECTION_SIZE"));
 
-    int closure_global_section_addr = atoi(getenv("CLOSURE_GLOBAL_SECTION_ADDR"));
+        closure_global_section_addr = atoi(getenv("CLOSURE_GLOBAL_SECTION_ADDR"));
 
-    char *closure_global_section_copy = malloc(closure_global_section_size);
-    copy_global_sections(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
+        closure_global_section_copy = malloc(closure_global_section_size);
 
+        reset_globals = 1;
+    
+    }
     for (int i = 0; i < 10; ++i)
     {
 
@@ -247,8 +254,9 @@ int main(int argc, char *argv[])
 
         close_open_file_handles();
         free_ptrs();
-        printf("Closure - section addr %p\n", closure_global_section_addr);
-        restore_global_sections(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
+        if (reset_globals != 0) {
+            restore_global_sections(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
+        }    
     }
 
     printf("\n---Done with Testing---\n");
