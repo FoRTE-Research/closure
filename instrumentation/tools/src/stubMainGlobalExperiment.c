@@ -140,6 +140,16 @@ void exitHook(int status)
     longjmp(__longjmp_buf__, status);
 }
 
+FILE *fopen_hook(const char *pathname, const char *mode)
+{
+    return fopen(pathname, mode);
+}
+
+int fclose_hook(FILE *f) {
+    return fclose(f);
+}
+
+
 void copy_global_sections(char *closure_global_section_addr, char *closure_global_section_copy,
                           int closure_global_section_size)
 {
@@ -154,14 +164,14 @@ int check_and_restore_global_sections(char *closure_global_section_addr, char *c
     // This is a byte level comparison and not a variable level comparison
     int num_modified = 0;
     mode_t given_mode = 0666;
-    int fd = open("./global_restoration_bitmap", O_RDWR | O_CREAT, given_mode);
+    int fd = open(getenv("CLOSURE_GLOBAL_BITMAP_FILE"), O_RDWR | O_CREAT, given_mode);
     for (int i = 0; i < closure_global_section_size; ++i)
     {
         if (closure_global_section_addr[i] != closure_global_section_copy[i])
         {
             num_modified++;
         }
-        char byte = (closure_global_section_copy[i] ^ closure_global_section_addr[i]) & 0x1;
+        char byte = (closure_global_section_copy[i] ^ closure_global_section_addr[i]);
         write(fd, &byte, 1);
     }
     close(fd);
