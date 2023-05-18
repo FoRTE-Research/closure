@@ -1,3 +1,12 @@
 [submodule "targets/libjpeg-turbo"]
 	path = targets/libjpeg-turbo
 	url = git@github.com:libjpeg-turbo/libjpeg-turbo.git
+[submodule "targets/nasm"]
+	path = targets/nasm
+	url = git@github.com:netwide-assembler/nasm.git
+[submodule "targets/cJSON"]
+	path = targets/cJSON
+	url = git@github.com:DaveGamble/cJSON.git
+[submodule "targets/libarchive"]
+	path = targets/libarchive
+	url = git@github.com:libarchive/libarchive.git
