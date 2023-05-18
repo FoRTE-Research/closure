@@ -4,13 +4,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-int a = 10;
-int b = 20;
+int a = 0x41414141;
+int b = 0x42424242;
 
 int main(int argc, char ** argv) {
 	printf("Original Value of global var b: 20\n");
 	printf("Value after previous execution %d\n", b);
-	b = 30;
+	b = 0x42444343;
 	
 	int fd = open(argv[3], O_RDONLY);
 	if (fd == -1) {
