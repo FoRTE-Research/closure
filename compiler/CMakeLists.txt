@@ -9,5 +9,5 @@ add_executable(closure-compiler
     ./closure.cc
 )
 set_target_properties(closure-compiler PROPERTIES
-    COMPILE_FLAGS "-g"
+    COMPILE_FLAGS "-g -Wno-unused-value"
 )
