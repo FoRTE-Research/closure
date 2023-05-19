@@ -69,6 +69,7 @@ def perform_compilation():
         run = subprocess.run(command,  capture_output=True, text=True, env=env)
 
     print(run.stderr)
+    exit(run.returncode)
 
 
 perform_compilation()
