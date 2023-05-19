@@ -102,7 +102,7 @@ char **make_envp_copy(char **envp)
 int main(int argc, char **argv, char **envp)
 {
 
-    printf(GRN "Closure - Compiler instrumentation for automated persistent mode\n" RESET);
+    printf(GRN "Closure - Compiler instrumentation for automated persistent mode" RESET "\n");
 
     setup_cmdline_args();
     auto argv_copy = make_argv_copy(argc, argv);
@@ -136,7 +136,7 @@ int main(int argc, char **argv, char **envp)
 
     if (global_overhead_exp && no_fuzz)
     {
-        printf(RED "Usage: -no-fuzz and -global-bytes cannot be used together\n" RESET);
+        printf(RED "Usage: -no-fuzz and -global-bytes cannot be used together" RESET "\n");
         exit(1);
     }
 
