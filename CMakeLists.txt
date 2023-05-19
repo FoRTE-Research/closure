@@ -26,3 +26,5 @@ add_library(closure MODULE
 set_target_properties(closure PROPERTIES
     COMPILE_FLAGS "-fno-rtti -fPIC -g"
 )
+
+add_subdirectory(compiler)

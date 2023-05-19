@@ -3,6 +3,7 @@
 #include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
@@ -145,10 +146,10 @@ FILE *fopen_hook(const char *pathname, const char *mode)
     return fopen(pathname, mode);
 }
 
-int fclose_hook(FILE *f) {
+int fclose_hook(FILE *f)
+{
     return fclose(f);
 }
-
 
 void copy_global_sections(char *closure_global_section_addr, char *closure_global_section_copy,
                           int closure_global_section_size)
@@ -193,7 +194,7 @@ int main(int argc, char *argv[])
 
     char *closure_global_section_copy = malloc(closure_global_section_size);
 
-    copy_global_sections(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
+    copy_global_sections((char *)closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
 
     for (int i = 0; i < 1; ++i)
     {
@@ -211,8 +212,8 @@ int main(int argc, char *argv[])
 
         free_ptrs();
         printf("Closure - section addr %p\n", closure_global_section_addr);
-        int num_modified = check_and_restore_global_sections(closure_global_section_addr, closure_global_section_copy,
-                                                             closure_global_section_size);
+        int num_modified = check_and_restore_global_sections((char *)closure_global_section_addr,
+                                                             closure_global_section_copy, closure_global_section_size);
 
         printf("Global Section size = %d\n Number of global bytes modified = %d", closure_global_section_size,
                num_modified);

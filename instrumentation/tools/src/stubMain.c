@@ -2,6 +2,7 @@
 #include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 jmp_buf __longjmp_buf__;
@@ -228,16 +229,20 @@ int main(int argc, char *argv[])
     int closure_global_section_size = 0;
     int closure_global_section_addr = 0;
     char *closure_global_section_copy = NULL;
-    if (getenv("CLOSURE_GLOBAL_SECTION_SIZE") && getenv("CLOSURE_GLOBAL_SECTION_ADDR")) {
+    if (getenv("CLOSURE_GLOBAL_SECTION_SIZE") && getenv("CLOSURE_GLOBAL_SECTION_ADDR"))
+    {
         closure_global_section_size = atoi(getenv("CLOSURE_GLOBAL_SECTION_SIZE"));
 
         closure_global_section_addr = atoi(getenv("CLOSURE_GLOBAL_SECTION_ADDR"));
 
         closure_global_section_copy = malloc(closure_global_section_size);
 
+        copy_global_sections((char *)closure_global_section_addr, closure_global_section_copy,
+                             closure_global_section_size);
+
         reset_globals = 1;
-    
     }
+
     for (int i = 0; i < 10; ++i)
     {
 
@@ -254,9 +259,11 @@ int main(int argc, char *argv[])
 
         close_open_file_handles();
         free_ptrs();
-        if (reset_globals != 0) {
-            restore_global_sections(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
-        }    
+        if (reset_globals != 0)
+        {
+            restore_global_sections((char *)closure_global_section_addr, closure_global_section_copy,
+                                    closure_global_section_size);
+        }
     }
 
     printf("\n---Done with Testing---\n");
