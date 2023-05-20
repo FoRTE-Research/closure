@@ -165,7 +165,7 @@ int main(int argc, char **argv, char **envp)
 
     if (pid == 0)
     {
-        // We are in the child process close its stdout and stderr
+        // We are in the child process, close its stdout and stderr
         close(STDOUT_FILENO);
         close(STDERR_FILENO);
         int devNullfd = open("/dev/null", O_RDWR);
