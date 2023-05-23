@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <vector>
 
-#define DEFAULT_COMPILER "/usr/bin/clang"
+#define DEFAULT_COMPILER "/usr/lib/llvm-11/bin/clang"
 
 #define RED "\x1B[31m"
 #define GRN "\x1B[32m"
@@ -144,11 +144,11 @@ int main(int argc, char **argv, char **envp)
 
     if (compile_command != false)
     {
-        // Push closure related flags int oargv
-        argv_copy.push_back("-Xclang");
-        argv_copy.push_back("-load");
-        argv_copy.push_back("-Xclang");
-        argv_copy.push_back(closure_pass);
+
+        string s = "-fpass-plugin=";
+        s.append(closure_pass);
+
+        argv_copy.push_back(s);
     }
 
     char **exec_argv = (char **)malloc(sizeof(char *) * (argv_copy.size() + 1));

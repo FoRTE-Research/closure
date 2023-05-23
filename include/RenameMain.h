@@ -7,14 +7,10 @@
  * in target.
  *
  */
-class RenameMainPass : public ModulePass
+class RenameMainPass : public PassInfoMixin<RenameMainPass>
 {
   public:
-    static char ID;
-
-    RenameMainPass() : ModulePass(ID)
-    {
-    }
+    PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM);
 
     virtual bool runOnModule(Module &M);
 };

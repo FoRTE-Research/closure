@@ -5,17 +5,23 @@
 #include "RenameMain.h"
 #include "StubPass.h"
 
-void addClosurePass(const PassManagerBuilder & /* unused */, legacy::PassManagerBase &PM)
+using OptimizationLevel = llvm::PassBuilder::OptimizationLevel;
+
+bool regPass(StringRef Name, ModulePassManager &MPM, ArrayRef<PassBuilder::PipelineElement>)
 {
-    PM.add(new RenameMainPass());
-    PM.add(new HeapResetPass());
-    PM.add(new ExitHookPass());
-    PM.add(new CloneGlobalsPass());
-    PM.add(new FileHookPass());
+    MPM.addPass(RenameMainPass());
+    return true;
 }
 
-// Register the pass so `opt -mempass` runs it.
-static RegisterPass<CloneGlobalsPass> A("closure", "Modify Stub to insert global clear calls");
-// Tell frontends to run the pass automatically.
-static RegisterStandardPasses B(PassManagerBuilder::EP_VectorizerStart, addClosurePass);
-static RegisterStandardPasses C(PassManagerBuilder::EP_EnabledOnOptLevel0, addClosurePass);
+extern "C" ::llvm::PassPluginLibraryInfo LLVM_ATTRIBUTE_WEAK llvmGetPassPluginInfo()
+{
+    return {LLVM_PLUGIN_API_VERSION, "closure", "v1.0", [](PassBuilder &PB) {
+                PB.registerOptimizerLastEPCallback([](ModulePassManager &MPM, OptimizationLevel OL) {
+                    MPM.addPass(RenameMainPass());
+                    MPM.addPass(HeapResetPass());
+                    MPM.addPass(ExitHookPass());
+                    MPM.addPass(CloneGlobalsPass());
+                    MPM.addPass(FileHookPass());
+                });
+            }};
+}

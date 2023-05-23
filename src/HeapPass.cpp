@@ -63,4 +63,9 @@ bool HeapResetPass::runOnModule(Module &M)
     return true;
 }
 
-char HeapResetPass::ID = 3;
+PreservedAnalyses HeapResetPass::run(Module &M, ModuleAnalysisManager &AM)
+{
+
+    runOnModule(M);
+    return PreservedAnalyses::none();
+}

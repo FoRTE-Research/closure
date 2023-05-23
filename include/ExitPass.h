@@ -8,14 +8,12 @@
  * iteration point.
  *
  */
-class ExitHookPass : public ModulePass
+class ExitHookPass : public PassInfoMixin<ExitHookPass>
 {
   public:
-    static char ID;
+    PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM);
 
-    ExitHookPass() : ModulePass(ID){};
-
-    virtual bool runOnModule(Module &M) override;
+    bool runOnModule(Module &M);
 
     void hookExit(Module &M);
 };
