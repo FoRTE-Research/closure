@@ -11,18 +11,10 @@
  * value
  *
  */
-class CloneGlobalsPass : public ModulePass
+class CloneGlobalsPass : public PassInfoMixin<CloneGlobalsPass>
 {
   public:
-    static char ID;
-
-    bool insertedFuncName;
-
-    std::string funcName;
-
-    CloneGlobalsPass() : ModulePass(ID), insertedFuncName{false}, funcName{""} {};
-
-    void restoreGlobalVariables(Module &M, GlobalVariable &original, GlobalVariable &clone);
+    PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM);
 
     void cloneGlobals(Module &M);
 

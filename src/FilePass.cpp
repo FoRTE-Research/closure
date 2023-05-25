@@ -33,4 +33,9 @@ bool FileHookPass::runOnModule(Module &M)
     return true;
 }
 
-char FileHookPass::ID = 0;
+PreservedAnalyses FileHookPass::run(Module &M, ModuleAnalysisManager &AM)
+{
+
+    runOnModule(M);
+    return PreservedAnalyses::none();
+}

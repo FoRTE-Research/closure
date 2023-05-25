@@ -8,13 +8,10 @@
  * dynamic memory allocations and frees them after every execution
  *
  */
-class HeapResetPass : public ModulePass
+class HeapResetPass : public PassInfoMixin<HeapResetPass>
 {
   public:
-    static char ID;
-
-    HeapResetPass() : ModulePass(ID){};
-
+    PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM);
     virtual bool runOnModule(Module &M);
 
     void heapManage(Module &M);

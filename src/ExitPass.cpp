@@ -40,4 +40,9 @@ bool ExitHookPass::runOnModule(Module &M)
     return true;
 }
 
-char ExitHookPass::ID = 4;
+PreservedAnalyses ExitHookPass::run(Module &M, ModuleAnalysisManager &AM)
+{
+
+    runOnModule(M);
+    return PreservedAnalyses::none();
+}

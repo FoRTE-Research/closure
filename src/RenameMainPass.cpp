@@ -30,4 +30,9 @@ bool RenameMainPass::runOnModule(Module &M)
     return true;
 }
 
-char RenameMainPass::ID = 2;
+PreservedAnalyses RenameMainPass::run(Module &M, ModuleAnalysisManager &AM)
+{
+
+    runOnModule(M);
+    return PreservedAnalyses::none();
+}

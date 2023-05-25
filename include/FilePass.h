@@ -14,14 +14,12 @@
  * iteration point.
  *
  */
-class FileHookPass : public ModulePass
+class FileHookPass : public PassInfoMixin<FileHookPass>
 {
   public:
-    static char ID;
+    PreservedAnalyses run(Module &M, ModuleAnalysisManager &AM);
 
-    FileHookPass() : ModulePass(ID){};
-
-    virtual bool runOnModule(Module &M) override;
+    bool runOnModule(Module &M);
 
     void hookFileRelatedCalls(Module &M);
 };
