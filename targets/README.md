@@ -32,7 +32,7 @@ The following are the benchmarks used for closure experiments.
         - `cjson @@`
 
 
-5. **audiofile (sfconvert)**
+5. **sfconvert**
     - Package - audiofile (tar ball )
     - Target binary is sfconvert
     - Build Type - configure and make
@@ -42,3 +42,11 @@ The following are the benchmarks used for closure experiments.
     - Fuzz command
         - Input type - .wav
         - `sfconvert @@ out.mp3 format`
+
+6. **xmllint**
+    - Package - libxml2 (github version 2.10.3)
+    - Build Type - cmake
+        - `Run cmake with DCMAKE_C_COMPILER and DBUILD_SHARED_LIBS=Off`
+    - Fuzz command 
+        - Input type - .xml
+        - `xmllint @@` 

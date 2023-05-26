@@ -10,3 +10,6 @@
 [submodule "targets/libarchive"]
 	path = targets/libarchive
 	url = git@github.com:libarchive/libarchive.git
+[submodule "targets/libxml2"]
+	path = targets/libxml2
+	url = git@github.com:GNOME/libxml2.git
