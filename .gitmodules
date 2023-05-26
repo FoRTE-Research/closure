@@ -16,3 +16,6 @@
 [submodule "targets/freetype/freetype"]
 	path = targets/freetype/freetype
 	url = git@github.com:freetype/freetype.git
+[submodule "targets/libpng/libpng"]
+	path = targets/libpng/libpng
+	url = git@github.com:glennrp/libpng.git

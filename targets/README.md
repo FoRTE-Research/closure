@@ -52,7 +52,7 @@ The following are the benchmarks used for closure experiments.
         - `xmllint @@`
 
 7. **freetype**
-    - Package - freetype (github latest branch)
+    - Package - freetype (github latest commit)
     - Target is a harness for freetype library
     - Build Type - cmake
         - `Run cmake with DCMAKE_C_COMPILER and DBUILD_SHARED_LIBS=Off`
@@ -63,3 +63,16 @@ The following are the benchmarks used for closure experiments.
     - Fuzz command
         - Input type - ttf
         - `./freetype @@`
+
+8. **pngfix**
+    - Package - libpng (github latest commit)
+    - Target is a png utility from the library
+    - Build Type - cmake
+        - `Run cmake with DCMAKE_C_COMPILER and DBUILD_SHARED_LIBS=Off`
+        - Build harness.c with libfreetype.a
+            - `cp ../pngfix.c ./closure-build` (Do not directly use pngfix from the library, use this instead)
+            - `cd closure-build`
+            - `closure-compiler -lz -lm -I../ ./harness.c ./libpng16.a -o pngfix`
+    - Fuzz command
+        - Input type - png
+        - `./pngfix @@`
