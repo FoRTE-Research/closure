@@ -13,3 +13,6 @@
 [submodule "targets/libxml2"]
 	path = targets/libxml2
 	url = git@github.com:GNOME/libxml2.git
+[submodule "targets/freetype/freetype"]
+	path = targets/freetype/freetype
+	url = git@github.com:freetype/freetype.git

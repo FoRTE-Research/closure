@@ -46,7 +46,20 @@ The following are the benchmarks used for closure experiments.
 6. **xmllint**
     - Package - libxml2 (github version 2.10.3)
     - Build Type - cmake
-        - `Run cmake with DCMAKE_C_COMPILER and DBUILD_SHARED_LIBS=Off`
+        - `Run cmake with DCMAKE_C_COMPILER and DBUILD_SHARED_LIBS=Off DLIBXML2_WITH_PYTHON`
     - Fuzz command 
         - Input type - .xml
-        - `xmllint @@` 
+        - `xmllint @@`
+
+7. **freetype**
+    - Package - freetype (github latest branch)
+    - Target is a harness for freetype library
+    - Build Type - cmake
+        - `Run cmake with DCMAKE_C_COMPILER and DBUILD_SHARED_LIBS=Off`
+        - Build harness.c with libfreetype.a
+            - `cp ../harness.c ./closure-build`
+            - `cd closure-build`
+            - `closure-compiler -lz -lpng -lbz2 -I../include ./harness.c ./libfreetype.a -o freetype`
+    - Fuzz command
+        - Input type - ttf
+        - `./freetype @@`
