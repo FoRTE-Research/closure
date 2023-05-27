@@ -19,3 +19,6 @@
 [submodule "targets/libpng/libpng"]
 	path = targets/libpng/libpng
 	url = git@github.com:glennrp/libpng.git
+[submodule "targets/json-parser"]
+	path = targets/json-parser
+	url = git@github.com:json-parser/json-parser.git
