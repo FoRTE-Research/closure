@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-FILE * cov_dump_file = NULL;
+FILE * cov_dump_file = 0x0;
 
 // This callback is inserted by the compiler as a module constructor
 // into every DSO. 'start' and 'stop' correspond to the
@@ -13,7 +13,7 @@ FILE * cov_dump_file = NULL;
 // once per DSO and may be called multiple times with the same parameters.
 void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop)
 {
-        char *cov_dump = NULL;
+        char *cov_dump = 0;
     if (getenv("COVERAGE_DUMP_FILE")) {
         cov_dump = getenv("COVERAGE_DUMP_FILE");
         cov_dump_file = fopen(cov_dump, "w");
@@ -36,8 +36,13 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop)
 //    __sanitizer_cov_trace_pc_guard(guard);
 void __sanitizer_cov_trace_pc_guard(uint32_t *guard)
 {
-    if (!*guard)
-        return; // Duplicate the guard check.
+    if (!*guard) {
+        void *PC = __builtin_return_address(0);
+        char PcDescr[1024];
+        __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
+        printf("Could not find guard for %s", PcDescr);
+        return;
+    } // Duplicate the guard check.
     // If you set *guard to 0 this code will not be called again for this edge.
     // Now you can get the PC and do whatever you want:
     //   store it somewhere or symbolize it and print right away.
@@ -53,9 +58,9 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard)
     if (cov_dump_file) {
 
         char s[20] = {0};
-        int siz = sprintf(s, "%d\t", *guard);
+        int siz = sprintf(s, "%d,", *guard);
         fwrite(s, 1, siz, cov_dump_file);
     }
     __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
-    printf("guard: %p %x PC %s\n", guard, *guard, PcDescr);
+    // printf("guard: %p %x PC %s\n", guard, *guard, PcDescr);
 }

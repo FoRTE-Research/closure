@@ -29,6 +29,7 @@ using namespace std;
 
 bool no_fuzz = false;
 bool global_overhead_exp = false;
+bool coverage = false;
 
 string closure_path;
 string afl_path;
@@ -40,6 +41,9 @@ string closure_pass;
 
 string afl_clang_fast;
 string denylist;
+
+string trace_pc_guard_callback_path;
+string trace_pc_guard_object_path;
 
 void setup_cmdline_args()
 {
@@ -56,6 +60,8 @@ void setup_cmdline_args()
 
     closure_pass = closure_path + "/build/libclosure.so";
 
+    trace_pc_guard_callback_path = closure_path + "/trace-pc-guard.c";
+    trace_pc_guard_object_path = closure_path + "/trace-pc-guard.o";
     denylist = closure_path + "/denylist.txt";
 
     afl_path = homedir;
@@ -102,7 +108,7 @@ char **make_envp_copy(char **envp)
 int main(int argc, char **argv, char **envp)
 {
 
-    printf(GRN "Closure - Compiler instrumentation for automated persistent mode" RESET "\n");
+    printf(YEL "Closure - Compiler instrumentation for automated persistent mode" RESET "\n");
 
     setup_cmdline_args();
     auto argv_copy = make_argv_copy(argc, argv);
@@ -122,6 +128,12 @@ int main(int argc, char **argv, char **envp)
             no_fuzz = true;
             argv_copy.erase(argv_copy.begin() + i);
         }
+        if (arg == "-cov")
+        {
+            compiler = DEFAULT_COMPILER;
+            coverage = true;
+            argv_copy.erase(argv_copy.begin() + i);
+        }
         if (arg == "-global-bytes")
         {
             compiler = DEFAULT_COMPILER;
@@ -139,8 +151,105 @@ int main(int argc, char **argv, char **envp)
         printf(RED "Usage: -no-fuzz and -global-bytes cannot be used together" RESET "\n");
         exit(1);
     }
+    if (coverage && (global_overhead_exp || no_fuzz))
+    {
+        printf(RED "Usage: -cov and -global-bytes or -no-fuzz cannot be used together" RESET "\n");
+    }
 
     argv_copy[0] = compiler;
+
+    if (coverage == true)
+    {
+        char **cmd = (char **)(malloc(sizeof(char *) * 6));
+        cmd[0] = (char *)compiler.c_str();
+        cmd[1] = "-c";
+        cmd[2] = (char *)trace_pc_guard_callback_path.c_str();
+        cmd[3] = "-o";
+        cmd[4] = (char *)trace_pc_guard_object_path.c_str();
+        cmd[5] = NULL;
+
+        pid_t pid = fork();
+        if (pid == 0)
+        {
+            // Child process
+            // We are in the child process, close its stdout and stderr
+            close(STDOUT_FILENO);
+            close(STDERR_FILENO);
+            int devNullfd = open("/dev/null", O_RDWR);
+            dup2(devNullfd, 1);
+            dup2(devNullfd, STDERR_FILENO);
+
+            execve(compiler.c_str(), cmd, NULL);
+            // Failed to Execve!!
+            exit(1);
+        }
+        else
+        {
+            int status;
+
+            int ret = waitpid(pid, &status, 0);
+            if (WIFEXITED(status))
+            {
+                int exit_status = WEXITSTATUS(status);
+                if (exit_status != 0)
+                {
+                    printf(RED "Failed to compile trace-pc-guard.c " RESET "\n");
+                    exit(1);
+                }
+            }
+        }
+        // Now that trace-pc-guard object is compiled, we compiler
+        // source file with this object
+
+        argv_copy.push_back("-fsanitize-coverage=trace-pc-guard");
+        argv_copy.push_back(trace_pc_guard_object_path);
+        char **exec_argv = (char **)malloc(sizeof(char *) * (argv_copy.size() + 1));
+        int i = 0;
+        for (auto arg : argv_copy)
+        {
+            exec_argv[i] = (char *)malloc(sizeof(char) * arg.size() + 1);
+            strncpy(exec_argv[i], arg.c_str(), arg.size());
+            exec_argv[i][arg.size()] = '\x00';
+            ++i;
+        }
+        exec_argv[i] = NULL;
+
+        pid_t compile_pid = fork();
+        if (compile_pid == 0)
+        {
+            // We are in the child process, close its stdout and stderr
+            close(STDOUT_FILENO);
+            close(STDERR_FILENO);
+            int devNullfd = open("/dev/null", O_RDWR);
+            dup2(devNullfd, 1);
+            dup2(devNullfd, STDERR_FILENO);
+
+            execve(compiler.c_str(), exec_argv, envp);
+            exit(0);
+        }
+        else
+        {
+            int status;
+
+            int ret = waitpid(compile_pid, &status, 0);
+            if (WIFEXITED(status))
+            {
+                int exit_status = WEXITSTATUS(status);
+                if (exit_status == 0)
+                {
+                    printf(GRN "Coverage-enabled target file compiled successfully " RESET);
+                }
+                else
+                {
+                    printf(RED "Failed to compile with coverage " RESET "\n");
+                    exit(1);
+                }
+            }
+        }
+
+        return 0;
+        // We first compiler trace-pc-guard object file
+    }
 
     if (compile_command != false)
     {
