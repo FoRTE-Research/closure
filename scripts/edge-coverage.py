@@ -12,6 +12,8 @@ import pandas as pd
 COVERAGE_DUMP_FILE = "COVERAGE_DUMP_FILE"
 COVERAGE_FILE_PATH = os.path.join(os.getcwd(), "coverage")
 
+plot = False
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -110,7 +112,8 @@ def process_queue_dir(corpus_dir, cmdline, cache_dir=None, result_csv=None):
     if result_csv is not None:
         fname = result_csv
     make_csv( time_entry_list, unique_edge_count_list, fname)
-    plot_graph(time_entry_list, unique_edge_count_list)
+    if plot:
+        plot_graph(time_entry_list, unique_edge_count_list)
 
 
 def plot_graph(X, Y):
@@ -144,9 +147,15 @@ def main():
     parser.add_argument("-r", dest="result_csvs", required=False, action='append', help="destination file for processed csv")
     parser.add_argument("--cmdline", dest="cmdline", required=True, nargs="+")
     parser.add_argument("-cache-dir", dest="cache_dir", required = False, action='append', help="Cache dir storing/to store generated edge coverage")
+    parser.add_argument("-plot", dest="plot", required = False, action='store_true', help="Plot graph interactively")
     
+    global plot
+
     IS_SINGLE_INPUT = False
     args = parser.parse_args()
+
+    if args.plot is True:
+        plot = True
 
     if args.corpus_dirs is None:
         IS_SINGLE_INPUT = True
