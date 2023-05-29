@@ -128,12 +128,6 @@ int main(int argc, char **argv, char **envp)
             no_fuzz = true;
             argv_copy.erase(argv_copy.begin() + i);
         }
-        if (arg == "-cov")
-        {
-            compiler = DEFAULT_COMPILER;
-            coverage = true;
-            argv_copy.erase(argv_copy.begin() + i);
-        }
         if (arg == "-global-bytes")
         {
             compiler = DEFAULT_COMPILER;
@@ -156,17 +150,23 @@ int main(int argc, char **argv, char **envp)
         printf(RED "Usage: -cov and -global-bytes or -no-fuzz cannot be used together" RESET "\n");
     }
 
+    if (getenv("CLOSURE_COVERAGE_COMPILER") != NULL)
+    {
+        coverage = true;
+        compiler = DEFAULT_COMPILER;
+    }
     argv_copy[0] = compiler;
 
     if (coverage == true)
     {
-        char **cmd = (char **)(malloc(sizeof(char *) * 6));
+        char **cmd = (char **)(malloc(sizeof(char *) * 7));
         cmd[0] = (char *)compiler.c_str();
-        cmd[1] = "-c";
-        cmd[2] = (char *)trace_pc_guard_callback_path.c_str();
-        cmd[3] = "-o";
-        cmd[4] = (char *)trace_pc_guard_object_path.c_str();
-        cmd[5] = NULL;
+        cmd[1] = "-fPIC";
+        cmd[2] = "-c";
+        cmd[3] = (char *)trace_pc_guard_callback_path.c_str();
+        cmd[4] = "-o";
+        cmd[5] = (char *)trace_pc_guard_object_path.c_str();
+        cmd[6] = NULL;
 
         pid_t pid = fork();
         if (pid == 0)
@@ -237,7 +237,7 @@ int main(int argc, char **argv, char **envp)
                 int exit_status = WEXITSTATUS(status);
                 if (exit_status == 0)
                 {
-                    printf(GRN "Coverage-enabled target file compiled successfully " RESET);
+                    printf(GRN "Coverage-enabled target file compiled successfully " RESET "\n");
                 }
                 else
                 {
@@ -246,9 +246,7 @@ int main(int argc, char **argv, char **envp)
                 }
             }
         }
-
-        return 0;
-        // We first compiler trace-pc-guard object file
+        exit(0);
     }
 
     if (compile_command != false)
