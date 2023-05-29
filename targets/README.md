@@ -11,6 +11,9 @@ The following are the benchmarks used for closure experiments.
     - Package - libarchive (github version 3.6.2)
     - Build Type - cmake 
         - `Use DCMAKE_C_COMPILER and DCMAKE_CXX_COMPILER to change compiler`
+    - Fuzz command
+        - Input type - .tar
+        - `./bsdtar -xOf @@`
 
 3. **nasm**
     - Package - nasm (github version 2.15.05)
