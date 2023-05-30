@@ -7,7 +7,7 @@ import numpy
 import pandas as pd
 import math
 
-label_x = "log10(Time (in seconds))"
+label_x = "Time (in seconds)"
 label_y = "Number of Unique edges"
 
 dashes = ["-", "--", "-.", ":"]
@@ -37,10 +37,15 @@ def plot_csv(fname, color, label, dash=dashes[0]):
     df = pd.read_csv(fname)
     Y = df["Unique edge count"].tolist()
     X = df["Time"].tolist()
-    xpts = numpy.array(X)
-    xpts = [numpy.log10(x) for x in xpts]
-    ypts = numpy.array(Y)
-    plt.plot(xpts, ypts, color=color, linestyle=dash, label=label)
+    log_xpts = list()
+    final_ypts = list()
+    i = 0
+    for i in range(len(X)):
+        if (X[i] != 0):
+            log_xpts.append(numpy.log10(X[i]))
+            final_ypts.append(Y[i])
+
+    plt.plot(log_xpts, final_ypts, color=color, linestyle=dash, label=label)
 
 def main():
     parser = argparse.ArgumentParser(
