@@ -33,6 +33,7 @@ def process_coverage_dump_file(fname):
     total_edges = list()
 
     coverage_dump = f.read()
+    f.close()
 
     coverage_dump = coverage_dump.split(",")
     for edge in coverage_dump:
@@ -76,15 +77,14 @@ def process_queue_dir(corpus_dir, cmdline, cache_dir=None, result_csv=None):
         if os.path.isfile(fname) is False:
             continue
         inputs_processed += 1
-        if (inputs_processed % 100 == 0):
-            print(f"Processed {inputs_processed}")
-        command:list = cmdline.copy()
+        print(f"Processed {inputs_processed}")
+        command:str = cmdline
         
         i = 0
-        for arg in command:
-            if "@@" in arg:
-                command[i] = fname
-            i += 1
+        
+        if "@@" in command:
+            command = command.replace("@@", fname)
+        i += 1
         if (cache_dir) is None:
             run = subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env=env)
         else:
@@ -145,10 +145,10 @@ def main():
     )
     parser.add_argument("-d", dest="corpus_dirs", required = False, action='append', help="Full path to the corpus directory")
     parser.add_argument("-r", dest="result_csvs", required=False, action='append', help="destination file for processed csv")
-    parser.add_argument("--cmdline", dest="cmdline", required=True, nargs="+")
+    parser.add_argument("--cmdline", dest="cmdline", required=True)
     parser.add_argument("-cache-dir", dest="cache_dir", required = False, action='append', help="Cache dir storing/to store generated edge coverage")
     parser.add_argument("-plot", dest="plot", required = False, action='store_true', help="Plot graph interactively")
-    
+
     global plot
 
     IS_SINGLE_INPUT = False
