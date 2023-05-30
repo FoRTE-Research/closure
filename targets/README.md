@@ -49,7 +49,7 @@ The following are the benchmarks used for closure experiments.
 6. **xmllint**
     - Package - libxml2 (github version 2.10.3)
     - Build Type - cmake
-        - `Run cmake with DCMAKE_C_COMPILER and DBUILD_SHARED_LIBS=Off DLIBXML2_WITH_PYTHON`
+        - `Run cmake with DCMAKE_C_COMPILER and DBUILD_SHARED_LIBS=Off DLIBXML2_WITH_PYTHON=Off`
     - Fuzz command 
         - Input type - .xml
         - `xmllint @@`
