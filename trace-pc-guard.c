@@ -3,8 +3,16 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <string.h>
 
 FILE * cov_dump_file = 0x0;
+
+char * closure_edge_dump = 0x0;
+char * closure_ptr = 0x0;
+int closure_edge_coverage_data_written = 0;
 
 // This callback is inserted by the compiler as a module constructor
 // into every DSO. 'start' and 'stop' correspond to the
@@ -13,10 +21,12 @@ FILE * cov_dump_file = 0x0;
 // once per DSO and may be called multiple times with the same parameters.
 void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop)
 {
-        char *cov_dump = 0;
+    char *cov_dump_filename = 0;
     if (getenv("COVERAGE_DUMP_FILE")) {
-        cov_dump = getenv("COVERAGE_DUMP_FILE");
-        cov_dump_file = fopen(cov_dump, "w");
+        cov_dump_filename = getenv("COVERAGE_DUMP_FILE");
+        cov_dump_file = fopen(cov_dump_filename, "w");
+        closure_edge_dump = (char *)calloc(10000, 1);
+        closure_ptr = closure_edge_dump;
     }
 
     static uint64_t N; // Counter for the guards.
@@ -26,6 +36,13 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t *start, uint32_t *stop)
     for (uint32_t *x = start; x < stop; x++)
         *x = ++N; // Guards should start from 1.
 }
+
+static void closure_fini(void) __attribute__((destructor)) {
+    
+    fwrite(closure_edge_dump, 1, closure_edge_coverage_data_written, cov_dump_file);
+    fclose(cov_dump_file);
+}
+
 
 // This callback is inserted by the compiler on every edge in the
 // control flow (some optimizations apply).
@@ -51,16 +68,19 @@ void __sanitizer_cov_trace_pc_guard(uint32_t *guard)
     // and use them to dereference an array or a bit vector.
 
 
-    void *PC = __builtin_return_address(0);
-    char PcDescr[1024];
     // This function is a part of the sanitizer run-time.
     // To use it, link with AddressSanitizer or other sanitizer.
     if (cov_dump_file) {
-
+        if (closure_edge_coverage_data_written > 9990) {
+            fwrite(closure_edge_dump, 1, closure_edge_coverage_data_written, cov_dump_file);
+            memset(closure_edge_dump, 0, closure_edge_coverage_data_written);
+            closure_edge_coverage_data_written = 0;
+            closure_ptr = closure_edge_dump;
+        }
         char s[20] = {0};
         int siz = sprintf(s, "%d,", *guard);
-        fwrite(s, 1, siz, cov_dump_file);
+        closure_ptr = mempcpy(closure_ptr, s, siz);
+        
+        closure_edge_coverage_data_written += siz;
     }
-    __sanitizer_symbolize_pc(PC, "%p %F %L", PcDescr, sizeof(PcDescr));
-    // printf("guard: %p %x PC %s\n", guard, *guard, PcDescr);
 }
