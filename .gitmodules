@@ -22,3 +22,6 @@
 [submodule "targets/json-parser"]
 	path = targets/json-parser
 	url = git@github.com:json-parser/json-parser.git
+[submodule "targets/imgdataopt"]
+	path = targets/imgdataopt
+	url = git@github.com:pts/imgdataopt.git
