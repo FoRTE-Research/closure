@@ -125,14 +125,14 @@ void exitHook(int status)
 void copy_global_sections(char *closure_global_section_addr, char *closure_global_section_copy,
                           int closure_global_section_size)
 {
-    mempcpy(closure_global_section_copy, closure_global_section_addr, closure_global_section_size);
+    memcpy(closure_global_section_copy, closure_global_section_addr, closure_global_section_size);
     return;
 }
 
 void restore_global_sections(char *closure_global_section_addr, char *closure_global_section_copy,
                              int closure_global_section_size)
 {
-    mempcpy(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
+    memcpy(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
     return;
 }
 

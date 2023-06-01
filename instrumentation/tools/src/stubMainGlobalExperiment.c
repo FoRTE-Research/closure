@@ -154,7 +154,7 @@ int fclose_hook(FILE *f)
 void copy_global_sections(char *closure_global_section_addr, char *closure_global_section_copy,
                           int closure_global_section_size)
 {
-    mempcpy(closure_global_section_copy, closure_global_section_addr, closure_global_section_size);
+    memcpy(closure_global_section_copy, closure_global_section_addr, closure_global_section_size);
     return;
 }
 
@@ -176,7 +176,7 @@ int check_and_restore_global_sections(char *closure_global_section_addr, char *c
         write(fd, &byte, 1);
     }
     close(fd);
-    mempcpy(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
+    memcpy(closure_global_section_addr, closure_global_section_copy, closure_global_section_size);
     return num_modified;
 }
 
