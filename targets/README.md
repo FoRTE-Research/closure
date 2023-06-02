@@ -90,3 +90,11 @@ The following are the benchmarks used for closure experiments.
     - Fuzz command
         - Input type - json
         - `./json-parser @@`
+
+10. **imgdataopt**
+    - Package - imgdataopt (Github latest commit)
+    - Build Type - make
+        - `Run make with CC=closure-compiler`
+    - Fuzz commmand
+        - Input type - png, pbm, pgm
+        - `./imgdataopt @@ out.png`
