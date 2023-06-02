@@ -98,3 +98,12 @@ The following are the benchmarks used for closure experiments.
     - Fuzz commmand
         - Input type - png, pbm, pgm
         - `./imgdataopt @@ out.png`
+
+11. **giftext**
+    - Package - giflib (sourceforge download)
+    - Target is a utility tool in giflib to process and print gif information
+    - Build Type - make
+        - `Run make with CC=closure-compiler`
+    - Fuzz command
+        - Input type - gif
+        - `./giftext -c @@`
