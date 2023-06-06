@@ -25,3 +25,6 @@
 [submodule "targets/imgdataopt"]
 	path = targets/imgdataopt
 	url = git@github.com:pts/imgdataopt.git
+[submodule "targets/gpmf-parser"]
+	path = targets/gpmf-parser
+	url = git@github.com:gopro/gpmf-parser.git

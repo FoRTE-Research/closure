@@ -107,3 +107,11 @@ The following are the benchmarks used for closure experiments.
     - Fuzz command
         - Input type - gif
         - `./giftext -c @@`
+
+12. **gpmf-parser**
+    - Package - gpmf-parser(Github latest commit)
+    - Build Type - cmake
+        - `Run cmake with DCMAKE_C_COMPILER=closure-compiler`
+    - Fuzz command
+        - Input type - mp4 (with gpfmf metadata)
+        - `./gpmf-parser @@`
