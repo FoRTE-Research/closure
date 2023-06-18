@@ -115,3 +115,13 @@ The following are the benchmarks used for closure experiments.
     - Fuzz command
         - Input type - mp4 (with gpfmf metadata)
         - `./gpmf-parser @@`
+
+13. **libpcap**
+    - Package - libpcap (Github latest commit)
+    - Target is the `fuzz_both` binary in run directory
+    - Build Type - cmake
+        - Install flex, bison and libnl-genl-3-dev
+        - `Run cmake with DCMAKE_C_COMPILER=closure-compiler DBUILD_SHARED_LIBS=Off`
+    - Fuzz command
+        - Input type - pcap
+        - `./run/fuzz_both @@`

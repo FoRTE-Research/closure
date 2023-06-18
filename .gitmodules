@@ -28,3 +28,6 @@
 [submodule "targets/gpmf-parser"]
 	path = targets/gpmf-parser
 	url = git@github.com:gopro/gpmf-parser.git
+[submodule "targets/libpcap"]
+	path = targets/libpcap
+	url = git@github.com:the-tcpdump-group/libpcap.git
