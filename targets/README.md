@@ -125,3 +125,14 @@ The following are the benchmarks used for closure experiments.
     - Fuzz command
         - Input type - pcap
         - `./run/fuzz_both @@`
+
+14. **zlib**
+    - Package - zlib (Github latest commit)
+    - Target is a harness from Google fuzzbench
+    - Build Type - configure and make
+        - `Run CC=closure-compiler ./configure followed by make to build the library`
+        - `mkdir closure-build`
+        - `closure-compiler ../../harness.c ../libz.a -o zlib_harness`
+    - Fuzz Command
+        - Input type - zlib archive
+        - `./zlib_harness @@`

@@ -31,3 +31,6 @@
 [submodule "targets/libpcap"]
 	path = targets/libpcap
 	url = git@github.com:the-tcpdump-group/libpcap.git
+[submodule "targets/zlib/zlib"]
+	path = targets/zlib/zlib
+	url = git@github.com:madler/zlib.git
