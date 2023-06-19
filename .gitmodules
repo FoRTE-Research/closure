@@ -34,3 +34,6 @@
 [submodule "targets/zlib/zlib"]
 	path = targets/zlib/zlib
 	url = git@github.com:madler/zlib.git
+[submodule "targets/c-blosc2"]
+	path = targets/c-blosc2
+	url = git@github.com:Blosc/c-blosc2.git

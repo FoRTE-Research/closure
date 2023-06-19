@@ -136,3 +136,12 @@ The following are the benchmarks used for closure experiments.
     - Fuzz Command
         - Input type - zlib archive
         - `./zlib_harness @@`
+
+15. **c-blosc2**
+    - Package - c-blocs2 (Github latest commit)
+    - Target is a fuzz harness present in c-blosc2 repository
+    - Build Type - CMake
+        - `Run cmake with DCMAKE_C_COMPILER=closure-compiler and DBUILD_STATIC=On DBUILD_SHARED=Off`
+    - Fuzz command
+        - Input Type - bframe
+        - `./tests/fuzz/decompress_chunk_fuzzer @@`
