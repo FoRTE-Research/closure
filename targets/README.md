@@ -145,3 +145,11 @@ The following are the benchmarks used for closure experiments.
     - Fuzz command
         - Input Type - bframe
         - `./tests/fuzz/decompress_chunk_fuzzer @@`
+
+16. **cgif**
+    - Package - cigf (Github latest commit)
+    - Build type - Manual compilation
+        - `closure-compiler -I../inc ../src/cgif.c ../src/cgif_raw.c ../fuzz/cgif_fuzzer.c ../fuzz/cgif_fuzzer_standalone.c -o cgif_harness`
+    - Fuzz command
+        - Input type - gif
+        - `./cgif_harness @@`

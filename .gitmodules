@@ -37,3 +37,6 @@
 [submodule "targets/c-blosc2"]
 	path = targets/c-blosc2
 	url = git@github.com:Blosc/c-blosc2.git
+[submodule "targets/cgif"]
+	path = targets/cgif
+	url = git@github.com:dloebl/cgif.git
