@@ -68,7 +68,7 @@ def main():
     if args.closure_csv:
         plot_csv(args.closure_csv, colors[1], "Closure")
     plt.legend(loc="lower right")
-    plt.xticks([0, 1, 2, 3, 4], [1, 10, 100, 1000, 10000])
+    plt.xticks([0, 1, 2, 3, 4, 4.93], [1, 10, 100, 1000, 10000, 86400])
     plt.xlabel(label_x)
     plt.ylabel(label_y)
     plt.title(args.plot_title)
