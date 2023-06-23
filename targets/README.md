@@ -153,3 +153,13 @@ The following are the benchmarks used for closure experiments.
     - Fuzz command
         - Input type - gif
         - `./cgif_harness @@`
+
+17. **libbpf**
+    - Package - libbpf (Linux kernel repo!!!)
+    - Target requires installation of `libelf-dev`    
+    - Build Type - make
+        - `make CC=closure-compiler`
+        - `closure-compiler -g -I../src/ -lz -lelf ../../bpf-object-fuzzer.c ./libbpf.a -o libbpf_harness`
+    - Fuzz command
+        - Input type - object file (included in repo)
+        - `./libbpf_harness @@` 
