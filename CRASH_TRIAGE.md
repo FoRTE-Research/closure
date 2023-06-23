@@ -49,4 +49,4 @@ AFL++ failed to find any of the above bugs in the 24hr trials
 > **_NOTE:_**  None of the above bugs were found by WinFuzz, so these are completely new 3 bugs
 
 ## AFL++ bugs
-AFL++ failed to find any of the above bugs in the 24hr trials
+AFL++ also found the three bugs in 24hr trial
