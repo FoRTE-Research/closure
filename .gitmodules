@@ -43,3 +43,6 @@
 [submodule "targets/libbpf/libbpf"]
 	path = targets/libbpf/libbpf
 	url = git@github.com:libbpf/libbpf.git
+[submodule "targets/libdwarf/libdwarf-code"]
+	path = targets/libdwarf/libdwarf-code
+	url = git@github.com:davea42/libdwarf-code.git

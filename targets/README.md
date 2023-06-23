@@ -163,3 +163,13 @@ The following are the benchmarks used for closure experiments.
     - Fuzz command
         - Input type - object file (included in repo)
         - `./libbpf_harness @@` 
+
+18. **libdwarf**
+    - Package - libdwarf-code (Github latest commit)
+    - Build type - cmake and harness compilation
+        - `Run cmake with DCMAKE_C_COMPILER=closure-compiler`
+        - `cd closure-build`
+        - `../../fuzz_dnames.c -I../src/lib/libdwarf -lz ../fuzz_dnames.c ./src/lib/libdwarf/libdwarf.a -o libdwarf_harness`
+    - Fuzz command
+        - Input type - ELF binaries (corpus is on [Github](https://github.com/davea42/libdwarf-binary-samples/tree/master))
+        - `./libdwarf_harness @@`
