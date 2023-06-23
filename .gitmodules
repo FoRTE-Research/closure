@@ -40,3 +40,6 @@
 [submodule "targets/cgif"]
 	path = targets/cgif
 	url = git@github.com:dloebl/cgif.git
+[submodule "targets/libbpf/libbpf"]
+	path = targets/libbpf/libbpf
+	url = git@github.com:libbpf/libbpf.git
