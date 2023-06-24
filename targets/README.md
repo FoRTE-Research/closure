@@ -173,3 +173,13 @@ The following are the benchmarks used for closure experiments.
     - Fuzz command
         - Input type - ELF binaries (corpus is on [Github](https://github.com/davea42/libdwarf-binary-samples/tree/master))
         - `./libdwarf_harness @@`
+
+19. **lighttpd**
+    - Package - lighttpd (Github latest commit)
+    - Build type - configure and manual harness compilation
+        - `./autogen.sh`
+        - `./configure --without-pcre --enable-static CC=closure-compiler`
+        - `closure-compiler -I./src ./harness.c ./src/lighttpd-burl.o ./src/lighttpd-buffer.o ./src/lighttpd-base64.o ./src/lighttpd-ck.o -o fuzz_burl`
+    - Fuzz command
+        - Input type - URL
+        - `./fuzz_burl @@`

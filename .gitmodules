@@ -46,3 +46,6 @@
 [submodule "targets/libdwarf/libdwarf-code"]
 	path = targets/libdwarf/libdwarf-code
 	url = git@github.com:davea42/libdwarf-code.git
+[submodule "targets/lighttpd/lighttpd1.4"]
+	path = targets/lighttpd/lighttpd1.4
+	url = git@github.com:lighttpd/lighttpd1.4.git
