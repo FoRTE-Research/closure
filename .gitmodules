@@ -49,3 +49,6 @@
 [submodule "targets/lighttpd/lighttpd1.4"]
 	path = targets/lighttpd/lighttpd1.4
 	url = git@github.com:lighttpd/lighttpd1.4.git
+[submodule "targets/md4c/md4c"]
+	path = targets/md4c/md4c
+	url = git@github.com:mity/md4c.git

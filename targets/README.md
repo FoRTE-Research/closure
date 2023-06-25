@@ -177,9 +177,19 @@ The following are the benchmarks used for closure experiments.
 19. **lighttpd**
     - Package - lighttpd (Github latest commit)
     - Build type - configure and manual harness compilation
+        - `sudo apt-get install pkg-config libtool`
         - `./autogen.sh`
-        - `./configure --without-pcre --enable-static CC=closure-compiler`
+        - `./configure --without-pcre --without-pcre2 --enable-static CC=closure-compiler`
         - `closure-compiler -I./src ./harness.c ./src/lighttpd-burl.o ./src/lighttpd-buffer.o ./src/lighttpd-base64.o ./src/lighttpd-ck.o -o fuzz_burl`
     - Fuzz command
         - Input type - URL
         - `./fuzz_burl @@`
+    
+20. **md4c**
+    - Package - md4c (Github latest commit)
+    - Build type - cmake and manual harness compilation
+        - `cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_COMPILER=closure-compiler ..`
+        - `closure-compiler -I../src ../../fuzz-md4c.c ./src/libmd4c-html.a ./src/libmd4c.a -o fuzz_md4c`
+    - Fuzz command
+        - Input type - .md files (corpus in test/fuzz-corpus folder)
+        - `./fuzz_md4c @@`
