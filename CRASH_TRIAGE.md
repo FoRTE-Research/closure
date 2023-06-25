@@ -74,3 +74,43 @@ AFL++ failed to find any of the above bugs in the 24hr trials
         - SIGFPE (Fatal Arithmetic Exception) - Division by Zero
         - Buggy line - `gpmf-parser/demo/GPMF_demo.c:364`
         - Status - <span style="color:red">**Not Reported**</span>
+
+# libbpf
+
+## Closure bugs
+- Trial 1
+    1. **libbpf_bug_one**
+        - Crash ID - id000000
+        - Segmentation Fault - Null Pointer Dereferencing
+        - Buggy line - `libbpf/src/libbpf.c:3600`
+        - Status - <span style="color:yellow">**Reported**</span>
+        - [Issue Link](https://github.com/libbpf/libbpf/issues/700)
+    2. **libbpf_bug_two**
+        - Crash ID - id000013
+        - Segmentation Fault - Null Pointer Dereferencing
+        - Buggy line - `libbpf/src/libbpf.c:4268`
+        - Status - <span style="color:red">**Not Reported**</span>
+    3. **libbpf_bug_three**
+        - Crash ID - id000030
+        - Segmentation Fault - Null Pointer Dereferencing
+        - Buggy line - `libbpf/src/libbpf.c:3828`
+        - Status - <span style="color:red">**Not Reported**</span>
+
+## AFL++ bugs
+- Trial 1
+    1. **libbpf_bug_one**
+        - Crash ID - id000000
+        - Segmentation Fault - Null Pointer Dereferencing
+        - Buggy line - `libbpf/src/libbpf.c:3600`
+        - Status - <span style="color:yellow">**Reported**</span>
+        - [Issue Link](https://github.com/libbpf/libbpf/issues/700)
+    2. **libbpf_bug_two**
+        - Crash ID - id000009
+        - Segmentation Fault - Null Pointer Dereferencing
+        - Buggy line - `libbpf/src/libbpf.c:4268`
+        - Status - <span style="color:yellow">**Reported**</span>
+    3. **libbpf_bug_three**
+        - Crash ID - id000027
+        - Segmentation Fault - Null Pointer Dereferencing
+        - Buggy line - `libbpf/src/libbpf.c:3828`
+        - Status - <span style="color:yellow">**Reported**</span>
