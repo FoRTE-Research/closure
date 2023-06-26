@@ -52,3 +52,6 @@
 [submodule "targets/md4c/md4c"]
 	path = targets/md4c/md4c
 	url = git@github.com:mity/md4c.git
+[submodule "targets/oniguruma/oniguruma"]
+	path = targets/oniguruma/oniguruma
+	url = git@github.com:kkos/oniguruma.git

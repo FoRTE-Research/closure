@@ -193,3 +193,13 @@ The following are the benchmarks used for closure experiments.
     - Fuzz command
         - Input type - .md files (corpus in test/fuzz-corpus folder)
         - `./fuzz_md4c @@`
+
+21. **oniguruma**
+    - Package - oniguruma (Github latest commit)
+    - Build type - cmake and manual harness compilation
+        - `cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_COMPILER=closure-compiler ..`
+        - `closure-compiler -DSYNTAX_TEST -I../src ../../fuzz_oniguruma.c ./libonig.a -o fuzz_oniguruma`
+    - Fuzz command
+        - Input type - regex (create a couple manually)
+        - Dictionary - use ascii_compatible.dict with -x option with afl-fuzz
+        - `./fuzz_oniguruma @@`
