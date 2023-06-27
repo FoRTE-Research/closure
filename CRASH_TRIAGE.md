@@ -114,3 +114,27 @@ AFL++ failed to find any of the above bugs in the 24hr trials
         - Segmentation Fault - Null Pointer Dereferencing
         - Buggy line - `libbpf/src/libbpf.c:3828`
         - Status - <span style="color:yellow">**Reported**</span>
+
+# md4c
+
+## Closure bugs
+- Trial 1
+    1. **md4c_bug_one**
+        - Crash ID - id000000
+        - Segmentation Fault - memcpy with invalid size (negative size passed to memcpy, resulting in too big a memcpy)
+        - Buggy line - `/home/jack/projects/closure/targets/md4c/md4c/src/md4c.c:4348`
+        - Status - <span style="color:yellow">**Reported**</span>
+    
+    2. **md4c_bug_two**
+        - Crash ID - id000002
+        - Segmentation Fault - Array out of bounds access
+        - Buggy line - `/home/jack/projects/closure/targets/md4c/md4c/src/md4c.c:1466`
+        - Status - <span style="color:yellow">**Reported**</span>
+
+## AFL++
+- Trial 1
+    1. **md4c_bug_one**
+        - Crash ID - id000000
+        - Segmentation Fault - memcpy with invalid size (negative size passed to memcpy, resulting in too big a memcpy)
+        - Buggy line - `/home/jack/projects/closure/targets/md4c/md4c/src/md4c.c:4348`
+        - Status - <span style="color:yellow">**Reported**</span>
