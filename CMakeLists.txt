@@ -27,3 +27,4 @@ set_target_properties(closure PROPERTIES
 )
 
 add_subdirectory(compiler)
+add_subdirectory(correctness-experiment)
