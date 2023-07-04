@@ -8,10 +8,9 @@
 #include <sys/mman.h>
 #include <string.h>
 
-extern FILE* cov_dump_file;
+extern FILE* coverage_dump_file;
 
 extern char* closure_edge_dump;
-extern char* closure_ptr;
 extern int closure_edge_coverage_data_written;
 
 void __sanitizer_cov_trace_pc_guard_init(uint32_t* start, uint32_t* stop) {
@@ -19,6 +18,7 @@ void __sanitizer_cov_trace_pc_guard_init(uint32_t* start, uint32_t* stop) {
     if (start == stop || *start)
         return;  // Initialize only once.
     printf("INIT: %p %p\n", start, stop);
+
     for (uint32_t* x = start; x < stop; x++)
         *x = ++N;  // Guards should start from 1.
 }
@@ -28,20 +28,17 @@ void __sanitizer_cov_trace_pc_guard(uint32_t* guard) {
         return;
     }
 
-    // if (cov_dump_file != NULL) {
-    //     if (closure_edge_coverage_data_written > 9990) {
-    //         fwrite(closure_edge_dump, 1, closure_edge_coverage_data_written, cov_dump_file);
-    //         memset(closure_edge_dump, 0, closure_edge_coverage_data_written);
-    //         closure_edge_coverage_data_written = 0;
-    //         closure_ptr                        = closure_edge_dump;
-    //     }
-    //     char s[20]  = {0};
-    //     int siz     = sprintf(s, "%d,", *guard);
-    //     closure_ptr = mempcpy(closure_ptr, s, siz);
+    if (closure_edge_dump == NULL)
+        return;
 
-    //     closure_edge_coverage_data_written += siz;
-    // }
-    // else {
-    //     printf("%d,", *guard);
-    // }
+    if (closure_edge_coverage_data_written > 9990) {
+        fwrite(closure_edge_dump, 1, closure_edge_coverage_data_written, coverage_dump_file);
+        closure_edge_coverage_data_written = 0;
+        memset(closure_edge_dump, 0, 10000);
+    }
+
+    char s[20] = {0};
+    int siz    = sprintf(s, "%d,", *guard);
+    mempcpy(closure_edge_dump + closure_edge_coverage_data_written, s, siz);
+    closure_edge_coverage_data_written += siz;
 }

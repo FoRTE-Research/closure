@@ -46,9 +46,9 @@ void setup_cmdline_args() {
     closure_path = homedir;
 
     closure_path.append("/projects/closure");
-    correctness_stub             = closure_path + "/instrumentation/tools/src/dataflow-correctness-stub.c";
+    correctness_stub             = closure_path + "/instrumentation/tools/src/controlflow-correctness-stub.c";
     closure_pass                 = closure_path + "/build/libclosure.so";
-    correctness_stub_object_path = closure_path + "/correctness-experiment/dataflow-correctness-stub.o";
+    correctness_stub_object_path = closure_path + "/correctness-experiment/controlflow-correctness-stub.o";
 
     coverage_pc_guard_callback_path = closure_path + "/correctness-experiment/coverage-pc-guard.c";
     coverage_pc_guard_object_path   = closure_path + "/correctness-experiment/coverage-pc-guard.o";
@@ -94,6 +94,7 @@ void compile_pc_guard_obj(string compiler) {
     cmd[7]     = NULL;
 
     pid_t pid = fork();
+
     if (pid == 0) {
         // Child process
         // We are in the child process, close its stdout and stderr
@@ -114,7 +115,7 @@ void compile_pc_guard_obj(string compiler) {
         if (WIFEXITED(status)) {
             int exit_status = WEXITSTATUS(status);
             if (exit_status != 0) {
-                printf(RED "Failed to compile trace-pc-guard.c " RESET "\n");
+                printf(RED "Failed to compile coverage-pc-guard.c " RESET "\n");
                 exit(1);
             }
         }
@@ -152,7 +153,7 @@ void compile_closure_stub_obj(string compiler) {
         if (WIFEXITED(status)) {
             int exit_status = WEXITSTATUS(status);
             if (exit_status != 0) {
-                printf(RED "Failed to compile trace-pc-guard.c " RESET "\n");
+                printf(RED "Failed to compile closure stub " RESET "\n");
                 exit(1);
             }
         }
@@ -196,7 +197,7 @@ int main(int argc, char** argv, char** envp) {
         pass_plugin_str.append(closure_pass);
         argv_copy.push_back(pass_plugin_str);
 
-        // argv_copy.push_back("-fsanitize-coverage=trace-pc-guard");
+        argv_copy.push_back("-fsanitize-coverage=trace-pc-guard");
     }
 
     char** exec_argv = (char**)malloc(sizeof(char*) * (argv_copy.size() + 1));
@@ -229,7 +230,8 @@ int main(int argc, char** argv, char** envp) {
             int exit_status = WEXITSTATUS(status);
             if (exit_status == 1) {
                 compile_closure_stub_obj(compiler);
-                // argv_copy.push_back(coverage_pc_guard_object_path);
+                compile_pc_guard_obj(compiler);
+                argv_copy.push_back(coverage_pc_guard_object_path);
                 argv_copy.push_back(correctness_stub_object_path);
             }
             int i           = 0;

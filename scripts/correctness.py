@@ -9,14 +9,16 @@ TMP_CORPUS_DIR = "/tmp/tmp_corpus"
 CORPUS_COUNT = 0
 
 # ENV VARIABLES FOR EXPERIMENT
-COVERAGE_DUMP_FILE = "COVERAGE_DUMP_FILE"
+CLOSURE_COVERAGE_DUMP = "CLOSURE_COVERAGE_DUMP"
 CLOSURE_ITERATION_COUNT = "CLOSURE_ITERATION_COUNT"
 CLOSURE_INPUT_CORPUS = "CLOSURE_INPUT_CORPUS"
 CLOSURE_GLOBAL_DUMP = "CLOSURE_GLOBAL_DUMP"
 CLOSURE_GLOBAL_SECTION_ADDR = "CLOSURE_GLOBAL_SECTION_ADDR"
 CLOSURE_GLOBAL_SECTION_SIZE = "CLOSURE_GLOBAL_SECTION_SIZE"
-ITERATION_COUNT = 100
+ITERATION_COUNT = 1000
 
+
+failed_test_ids = list()
 
 args = None
 
@@ -67,11 +69,12 @@ def generate_random_corpus(id: int):
     return input_corpus
 
 
-def check_correctness(single_dump: str, reset_dump: str, non_det_bytes: list):
+def check_dataflow_correctness(single_dump: str, reset_dump: str, non_det_bytes: list):
     single_dump_data = open(single_dump, "rb").read()
     reset_dump_data = open(reset_dump, "rb").read()
 
     ret = True
+    global failed_test_ids
     # non_det_bytes = list()
     incorrect_bytes = list()
     for i in range(len(single_dump_data)):
@@ -83,7 +86,17 @@ def check_correctness(single_dump: str, reset_dump: str, non_det_bytes: list):
             ret = False
     if (len(incorrect_bytes)) != 0:
         print(f"\tINCORRECT:{incorrect_bytes}")
+
     return ret
+
+
+def check_controlflow_correctness(single_dump: str, reset_dump: str):
+    single_dump_data = open(single_dump, "r").read()
+    reset_dump_data = open(reset_dump, "r").read()
+
+    single_dump_data = single_dump_data.split(",")
+    reset_dump_data = reset_dump_data.split(",")
+    return reset_dump_data == single_dump_data
 
 
 def determine_nondeterministic_bytes(id: int):
@@ -142,14 +155,14 @@ def generate_envs(args: argparse.Namespace, ground_truth_run: bool, id: int, inp
         if args.dataflow_correctness:
             env[CLOSURE_GLOBAL_DUMP] = single_dump_file
         else:
-            env[COVERAGE_DUMP_FILE] = single_dump_file
+            env[CLOSURE_COVERAGE_DUMP] = single_dump_file
     else:
         env[CLOSURE_ITERATION_COUNT] = str(ITERATION_COUNT)
         env[CLOSURE_INPUT_CORPUS] = ",".join(input_corpus)
         if args.dataflow_correctness:
             env[CLOSURE_GLOBAL_DUMP] = reset_dump_file
         else:
-            env[COVERAGE_DUMP_FILE] = reset_dump_file
+            env[CLOSURE_COVERAGE_DUMP] = reset_dump_file
 
     if args.global_section_addr:
         env[CLOSURE_GLOBAL_SECTION_ADDR] = str(args.global_section_addr)
@@ -196,11 +209,11 @@ def main():
         print(
             f" {bcolors.OKCYAN}[INFO]: Testing for Corpus ID {i} {bcolors.ENDC}")
 
-        non_det_bytes = determine_nondeterministic_bytes(i)
+        non_det_bytes = list()
+        if args.dataflow_correctness:
+            non_det_bytes = determine_nondeterministic_bytes(i)
 
         # Running single iteration for ground truth
-        # copy_cmdline = args.cmdline.replace(
-        #     "@@", f"{TMP_CORPUS_DIR}/id_{str(i).zfill(6)}").split(" ")
         copy_cmdline = args.cmdline.split(" ")
         single_env = generate_envs(args, True, i, i)
         run_target(cmdline=copy_cmdline, env=single_env)
@@ -209,25 +222,42 @@ def main():
 
         input_corpus = generate_random_corpus(i)
         reset_env = generate_envs(args, False, i, input_corpus)
+
         run_target(cmdline=cmdline, env=reset_env)
 
         if args.dataflow_correctness:
 
-            if check_correctness(
+            if check_dataflow_correctness(
                     single_dump=single_env[CLOSURE_GLOBAL_DUMP],
                     reset_dump=reset_env[CLOSURE_GLOBAL_DUMP],
                     non_det_bytes=non_det_bytes) is False:
                 print(
                     f"{bcolors.FAIL} [WARN]: Failed test for {i} {bcolors.ENDC}")
+                failed_test_ids.append(f"id_{str(i).zfill(6)}")
+
+        else:
+            if check_controlflow_correctness(
+                single_dump=single_env[CLOSURE_COVERAGE_DUMP],
+                reset_dump=reset_env[CLOSURE_COVERAGE_DUMP]
+            ) is False:
+                print(
+                    f"{bcolors.FAIL} [WARN]: Failed controlflow test for {i} {bcolors.ENDC}")
+                failed_test_ids.append(f"id_{str(i).zfill(6)}")
 
         # if (single_cov != reset_cov):
         #     print(
         #         f"{bcolors.WARNING}[WARN]: Failed test for Corpus ID: {i}{bcolors.ENDC}")
         #     print(f"{len(reset_cov)} : {len(single_cov)}")
         #     print(f"{single_cov}\n\n {reset_cov}")
+        if args.dataflow_correctness:
+            os.unlink(single_env[CLOSURE_GLOBAL_DUMP])
+            os.unlink(reset_env[CLOSURE_GLOBAL_DUMP])
+        else:
+            os.unlink(single_env[CLOSURE_COVERAGE_DUMP])
+            os.unlink(reset_env[CLOSURE_COVERAGE_DUMP])
 
-        os.unlink(single_env[CLOSURE_GLOBAL_DUMP])
-        os.unlink(reset_env[CLOSURE_GLOBAL_DUMP])
+    print(
+        f"{bcolors.WARNING} [RESULT]: Failed test for {failed_test_ids} {bcolors.ENDC}")
 
 
 if __name__ == "__main__":
