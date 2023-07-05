@@ -278,11 +278,6 @@ def main():
                     f"{bcolors.FAIL} [WARN]: Failed controlflow test for {i} {bcolors.ENDC}")
                 failed_test_ids.append(f"id_{str(i).zfill(6)}")
 
-        # if (single_cov != reset_cov):
-        #     print(
-        #         f"{bcolors.WARNING}[WARN]: Failed test for Corpus ID: {i}{bcolors.ENDC}")
-        #     print(f"{len(reset_cov)} : {len(single_cov)}")
-        #     print(f"{single_cov}\n\n {reset_cov}")
         if args.dataflow_correctness:
             os.unlink(single_env[CLOSURE_GLOBAL_DUMP])
             os.unlink(reset_env[CLOSURE_GLOBAL_DUMP])
