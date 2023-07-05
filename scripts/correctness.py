@@ -15,10 +15,12 @@ CLOSURE_INPUT_CORPUS = "CLOSURE_INPUT_CORPUS"
 CLOSURE_GLOBAL_DUMP = "CLOSURE_GLOBAL_DUMP"
 CLOSURE_GLOBAL_SECTION_ADDR = "CLOSURE_GLOBAL_SECTION_ADDR"
 CLOSURE_GLOBAL_SECTION_SIZE = "CLOSURE_GLOBAL_SECTION_SIZE"
-ITERATION_COUNT = 1000
+ITERATION_COUNT = 1
 
 
 failed_test_ids = list()
+nondet_test_ids = list()
+
 
 args = None
 
@@ -131,6 +133,33 @@ def determine_nondeterministic_bytes(id: int):
     return non_det_bytes
 
 
+def determine_nondet_controlflow(id: int):
+    # How many iterations should we do to determine non-det bytes?
+    # We start with 10
+
+    copy_cmdline = args.cmdline.split(" ")
+    single_env = generate_envs(args, True, id, id)
+    ret = False
+
+    for it in range(0, 10):
+
+        run_target(cmdline=copy_cmdline, env=single_env)
+        first_dump = open(
+            single_env[CLOSURE_COVERAGE_DUMP], "r").read().split(",")
+        os.unlink(single_env[CLOSURE_COVERAGE_DUMP])
+        single_env[CLOSURE_COVERAGE_DUMP] = single_env[CLOSURE_COVERAGE_DUMP].replace(
+            "single", "reset")
+        run_target(cmdline=copy_cmdline, env=single_env)
+        second_dump = open(
+            single_env[CLOSURE_COVERAGE_DUMP], "r").read().split(",")
+        os.unlink(single_env[CLOSURE_COVERAGE_DUMP])
+
+        if first_dump != second_dump:
+            return True
+
+    return False
+
+
 def parse_cov_file(cov_file_path: str):
     f = open(cov_file_path)
 
@@ -212,8 +241,13 @@ def main():
         non_det_bytes = list()
         if args.dataflow_correctness:
             non_det_bytes = determine_nondeterministic_bytes(i)
-
+        else:
+            is_non_det_input = determine_nondet_controlflow(i)
         # Running single iteration for ground truth
+
+        if is_non_det_input:
+            nondet_test_ids.append(f"id_{str(i).zfill(6)}")
+            continue
         copy_cmdline = args.cmdline.split(" ")
         single_env = generate_envs(args, True, i, i)
         run_target(cmdline=copy_cmdline, env=single_env)
@@ -256,8 +290,12 @@ def main():
             os.unlink(single_env[CLOSURE_COVERAGE_DUMP])
             os.unlink(reset_env[CLOSURE_COVERAGE_DUMP])
 
+    if (len(nondet_test_ids) > 0):
+        print(
+            f"{bcolors.WARNING} [RESULT]: Following inputs were non-deterministic {nondet_test_ids} {bcolors.ENDC}")
+
     print(
-        f"{bcolors.WARNING} [RESULT]: Failed test for {failed_test_ids} {bcolors.ENDC}")
+        f"{bcolors.FAIL} [RESULT]: Failed test for {failed_test_ids} {bcolors.ENDC}")
 
 
 if __name__ == "__main__":
