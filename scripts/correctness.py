@@ -20,6 +20,8 @@ ITERATION_COUNT = 100
 
 args = None
 
+fail_input_ids = list()
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -219,6 +221,7 @@ def main():
                     non_det_bytes=non_det_bytes) is False:
                 print(
                     f"{bcolors.FAIL} [WARN]: Failed test for {i} {bcolors.ENDC}")
+                fail_input_ids.append(f"id_{str(i).zfill(6)}")
 
         # if (single_cov != reset_cov):
         #     print(
@@ -229,6 +232,7 @@ def main():
         os.unlink(single_env[CLOSURE_GLOBAL_DUMP])
         os.unlink(reset_env[CLOSURE_GLOBAL_DUMP])
 
+    print(f"{bcolors.WARNING} [INFO]: Failed tests for inputs {fail_input_ids}")
 
 if __name__ == "__main__":
     main()
