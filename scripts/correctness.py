@@ -287,10 +287,11 @@ def main():
 
     if (len(nondet_test_ids) > 0):
         print(
-            f"{bcolors.WARNING} [RESULT]: Following inputs were non-deterministic {nondet_test_ids} {bcolors.ENDC}")
+            f"{bcolors.WARNING} [RESULT]: Following inputs were non-deterministic - Count: {len(nondet_test_ids)} ID: {nondet_test_ids} {bcolors.ENDC}")
 
-    print(
-        f"{bcolors.FAIL} [RESULT]: Failed test for {failed_test_ids} {bcolors.ENDC}")
+    if (len(failed_test_ids) > 0):
+        print(
+            f"{bcolors.FAIL} [RESULT]: Failed test for {failed_test_ids} {bcolors.ENDC}")
 
 
 if __name__ == "__main__":
